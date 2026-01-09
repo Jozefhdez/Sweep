@@ -127,10 +127,11 @@ AST *parse(token_t *toks) {
 }
 
 /*
-    Parses low precedende operators, reads a term and repets while it finds + or
+    Parses low precedence operators, reads a term and repeats while it finds +
+   or
    -, creating recursive binary nodes.
 
-   Ej. for 5 + 3 - 2 it creates ((5 - 3) - 2)
+   Ej. for 5 + 3 - 2 it creates ((5 + 3) - 2)
 */
 static AST *parse_expr() {
     AST *left = parse_term();
@@ -144,7 +145,7 @@ static AST *parse_expr() {
 }
 
 /*
-    Parses terms with high precedence (* and /), it reads a factor and repets it
+   Parses terms with high precedence (* and /), it reads a factor and repets it
    while it finds * or /. Ej. for 3 * 2 * 1, first it parses 3 * 2, then
    parse_expr() adds + 1
 */
@@ -160,7 +161,7 @@ static AST *parse_term() {
 }
 
 /*
-    Parses most basic factors, ints, floats, ids or parenteses expretions
+    Parses most basic factors, ints, floats, ids or parenteses expressions
     Ej. for 6, creates a TOKEN_INT node.
     For (2 + 3), calls recursively parse_expr()
 */
