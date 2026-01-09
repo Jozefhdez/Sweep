@@ -5,42 +5,50 @@
 #include "sw_ops.h"
 #include "sw_parser.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main() {
-    // const char *code = "x := 1 + 2 + 3 * 10";
-    // const char *code = "x := \"hello\" + \" world!\"";
-    // const char *code = "x := (1, 2, 3) * (10, 20, 30)";
-    const char *code = "x := 2 * (10, 20, 30)";
+    // Test multiple Sweep statements
+    const char *code = "x := (1,2,3) + (4,5,6)\ny := x * 2\nz := y - (1,1,1)";
 
-    printf("Testing Sweep expression: %s\n\n", code);
+    // Split code by newlines for multiple statements
+    char *code_copy = strdup(code);
+    char *line = strtok(code_copy, "\n");
+    while (line != NULL) {
+        printf("Statement: %s\n", line);
 
-    token_t *tokens = sw_lex(code);
-    printf("Tokens:\n");
-    for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
-        printf("%s\n", tokens[i].lexeme);
-    }
-    printf("\n");
+        token_t *tokens = sw_lex(line);
+        printf("Tokens:\n");
+        for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
+            printf("  %s\n", tokens[i].lexeme);
+        }
+        printf("\n");
 
-    AST *ast = parse(tokens);
-    if (ast) {
-        printf("AST: ");
-        ast_print(ast);
-        printf("\n\n");
+        AST *ast = parse(tokens);
+        if (ast) {
+            printf("AST: ");
+            ast_print(ast);
+            printf("\n\n");
 
-        sw_obj_t *result = sw_eval(ast);
-        if (result) {
-            printf("Result: ");
-            sw_print(result);
-            printf("\n");
+            sw_obj_t *result = sw_eval(ast);
+            if (result) {
+                printf("Result: ");
+                sw_print(result);
+                printf("\n");
+            } else {
+                printf("Evaluation error\n");
+            }
+
+            ast_free(ast);
         } else {
-            printf("Evaluation error\n");
+            printf("Parse error\n");
         }
 
-        ast_free(ast);
-    } else {
-        printf("Parse error\n");
+        free_tokens(tokens);
+        printf("\n");
+        line = strtok(NULL, "\n");
     }
-
-    free_tokens(tokens);
+    free(code_copy);
     return 0;
 }
