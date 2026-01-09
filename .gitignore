@@ -22,3 +22,10 @@ Thumbs.db
 *.log
 
 test_output.txt
+
+# Test executables
+tests/test_objects
+tests/test_operations
+tests/test_lexer
+tests/test_parser
+tests/*.dSYM/
