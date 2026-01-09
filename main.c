@@ -13,8 +13,6 @@ void print_prompt() {
     printf("Sweep > ");
 }
 
-// remember to delete unnecesarry prints and only left the result
-
 int main() {
     InputBuffer *input_buffer = new_input_buffer();
 
