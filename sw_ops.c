@@ -182,6 +182,14 @@ sw_obj_t *sw_mul(sw_obj_t *a, sw_obj_t *b) {
             sw_obj_t *y = sw_mul(a, b->data.v_vec3.y);
             sw_obj_t *z = sw_mul(a, b->data.v_vec3.z);
             return sw_vec3(x, y, z);
+        } else if (b->kind == SW_ARRAY) {
+            sw_obj_t *result = sw_array(b->data.v_array.size);
+            for (size_t i = 0; i < b->data.v_array.size; i++) {
+                sw_obj_t *elem = sw_array_get(b, i);
+                sw_obj_t *multiplied = sw_mul(a, elem);
+                sw_array_set(result, i, multiplied);
+            }
+            return result;
         } else {
             return NULL;
         }
@@ -191,12 +199,30 @@ sw_obj_t *sw_mul(sw_obj_t *a, sw_obj_t *b) {
             return sw_int(a->data.v_float * b->data.v_int);
         } else if (b->kind == SW_FLOAT) {
             return sw_float(a->data.v_float * b->data.v_float);
+        } else if (b->kind == SW_ARRAY) {
+            sw_obj_t *result = sw_array(b->data.v_array.size);
+            for (size_t i = 0; i < b->data.v_array.size; i++) {
+                sw_obj_t *elem = sw_array_get(b, i);
+                sw_obj_t *multiplied = sw_mul(a, elem);
+                sw_array_set(result, i, multiplied);
+            }
+            return result;
         } else {
             return NULL;
         }
         break;
     case SW_ARRAY:
-        return NULL;
+        if (b->kind == SW_INT || b->kind == SW_FLOAT) {
+            sw_obj_t *result = sw_array(a->data.v_array.size);
+            for (size_t i = 0; i < a->data.v_array.size; i++) {
+                sw_obj_t *elem = sw_array_get(a, i);
+                sw_obj_t *multiplied = sw_mul(elem, b);
+                sw_array_set(result, i, multiplied);
+            }
+            return result;
+        } else {
+            return NULL;
+        }
         break;
     case SW_VEC3:
         if (b->kind == SW_VEC3) {
