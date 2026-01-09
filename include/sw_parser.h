@@ -20,6 +20,11 @@ struct AST {
         struct TOKEN_STRING {
             char *value;
         } TOKEN_STRING;
+        struct TOKEN_VECTOR3 {
+            AST *x;
+            AST *y;
+            AST *z;
+        } TOKEN_VECTOR3;
         struct TOKEN_ID {
             char *name;
         } TOKEN_ID;

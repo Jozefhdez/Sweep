@@ -48,6 +48,14 @@ sw_obj_t *sw_eval(AST *ast) {
         return sw_float(ast->TOKEN_FLOAT.number);
     case TOKEN_STRING:
         return sw_string(ast->TOKEN_STRING.value);
+    case TOKEN_VECTOR3: {
+        sw_obj_t *x = sw_eval(ast->TOKEN_VECTOR3.x);
+        sw_obj_t *y = sw_eval(ast->TOKEN_VECTOR3.y);
+        sw_obj_t *z = sw_eval(ast->TOKEN_VECTOR3.z);
+        if (!x || !y || !z)
+            return NULL;
+        return sw_vec3(x, y, z);
+    }
     case TOKEN_ID:
         return get_var(ast->TOKEN_ID.name);
     case TOKEN_ASSIGN: {

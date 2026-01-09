@@ -101,13 +101,13 @@ void sw_print(sw_obj_t *obj) {
         printf("\"%s\"", obj->data.v_string);
         break;
     case SW_VEC3:
-        printf("[");
+        printf("(");
         sw_print(obj->data.v_vec3.x);
         printf(", ");
         sw_print(obj->data.v_vec3.y);
         printf(", ");
         sw_print(obj->data.v_vec3.z);
-        printf("]");
+        printf(")");
         break;
     case SW_ARRAY:
         printf("[");

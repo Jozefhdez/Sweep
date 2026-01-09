@@ -67,6 +67,9 @@ token_t *sw_lex(const char *source) {
         case ')':
             tokens[count++] = make_token(TOKEN_RPAREN, &source[start], 1, line);
             break;
+        case ',':
+            tokens[count++] = make_token(TOKEN_COMMA, &source[start], 1, line);
+            break;
         case ';':
             tokens[count++] = make_token(TOKEN_SEMI, &source[start], 1, line);
             break;

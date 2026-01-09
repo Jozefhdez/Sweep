@@ -39,6 +39,16 @@ void ast_print(AST *ptr) {
         printf("\"%s\"", ast.TOKEN_STRING.value);
         break;
     }
+    case TOKEN_VECTOR3: {
+        printf("vec3(");
+        ast_print(ast.TOKEN_VECTOR3.x);
+        printf(", ");
+        ast_print(ast.TOKEN_VECTOR3.y);
+        printf(", ");
+        ast_print(ast.TOKEN_VECTOR3.z);
+        printf(")");
+        break;
+    }
     case TOKEN_ID: {
         printf("%s", ast.TOKEN_ID.name);
         break;
@@ -99,6 +109,12 @@ void ast_free(AST *ast) {
         break;
     case TOKEN_STRING:
         free(ast->TOKEN_STRING.value);
+        free(ast);
+        break;
+    case TOKEN_VECTOR3:
+        ast_free(ast->TOKEN_VECTOR3.x);
+        ast_free(ast->TOKEN_VECTOR3.y);
+        ast_free(ast->TOKEN_VECTOR3.z);
         free(ast);
         break;
     case TOKEN_ID:
@@ -227,11 +243,21 @@ static AST *parse_factor() {
             TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current - 1].lexeme)}}});
     }
     if (match(TOKEN_LPAREN)) {
-        AST *expr = parse_expr();
-        if (!match(TOKEN_RPAREN)) {
-            // error: missing )
+        AST *first = parse_expr();
+        if (!first) return NULL;
+        if (match(TOKEN_COMMA)) {
+            // vector literal (1,2,3)
+            AST *second = parse_expr();
+            if (!second || !match(TOKEN_COMMA)) return NULL;
+            AST *third = parse_expr();
+            if (!third || !match(TOKEN_RPAREN)) return NULL;
+            return ast_new((AST){TOKEN_VECTOR3, {.TOKEN_VECTOR3 = {first, second, third}}});
+        } else if (match(TOKEN_RPAREN)) {
+            // parenthesized expression
+            return first;
+        } else {
+            return NULL;
         }
-        return expr;
     }
     // error
     return NULL;
