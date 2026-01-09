@@ -108,7 +108,6 @@ token_t *sw_lex(const char *source) {
     tokens = realloc(tokens, sizeof(token_t) * (count + 1));
     tokens[count] = make_token(TOKEN_EOF, "", 0, line);
     return tokens;
-    ;
 }
 
 void free_tokens(token_t *tokens) {
