@@ -1,12 +1,11 @@
 #ifndef SW_OBJ_H
 #define SW_OBJ_H
 
+#include "sw_gc.h"
 #include "sw_types.h"
 
-sw_obj_t *_new_sw_object();
-void refcount_inc(sw_obj_t *obj);
-void refcount_dec(sw_obj_t *obj);
-void refcount_free(sw_obj_t *obj);
+sw_obj_t *_new_sw_object(vm_t *vm);
+void sw_object_free(sw_obj_t *obj);
 sw_obj_t *sw_int(int value);
 sw_obj_t *sw_float(float value);
 sw_obj_t *sw_string(char *value);

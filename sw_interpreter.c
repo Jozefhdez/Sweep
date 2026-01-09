@@ -118,3 +118,14 @@ void free_symbols() {
     }
     symbol_count = 0;
 }
+
+void get_symbol_table(sw_obj_t ***objects, int *count) {
+    static sw_obj_t *symbol_objects[MAX_VARS];
+
+    for (int i = 0; i < symbol_count; i++) {
+        symbol_objects[i] = symbols[i].value;
+    }
+
+    *objects = symbol_objects;
+    *count = symbol_count;
+}

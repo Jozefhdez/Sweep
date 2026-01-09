@@ -30,7 +30,7 @@ typedef union {
 struct sw_obj {
     sw_kind_t kind;
     sw_data_t data;
-    int refcount;
+    bool marked; // for mark-and-sweep GC
 };
 
 #endif

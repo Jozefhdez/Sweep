@@ -7,12 +7,7 @@ bool sw_array_set(sw_obj_t *obj, size_t index, sw_obj_t *value) {
         return false;
     }
 
-    if (obj->data.v_array.elements[index]) {
-        refcount_dec(obj->data.v_array.elements[index]);
-    }
-
     obj->data.v_array.elements[index] = value;
-    refcount_inc(obj->data.v_array.elements[index]);
     return true;
 }
 
