@@ -1,6 +1,13 @@
 # Sweep Programming Language
 
-Sweep is a dynamic programming language with an interactive REPL. It features an object system with dynamic typing, supporting integers, floats, strings, 3D vectors, and arrays. It includes arithmetic operations with automatic type coercion, variables, and expression evaluation.
+Sweep is a dynamic programming language with an interactive REPL. It features an object system with dynamic typing, supporting integers, floats, strings, 3D vectors, and arrays. It includes arithmetic operations with automatic type coercion, variables, expression evaluation, and a **mark-and-sweep garbage collector**.
+
+## Features
+
+- **Dynamic Type System**: Supports INT, FLOAT, STRING, VEC3, and ARRAY types
+- **Tree-Walking Interpreter**: Direct AST evaluation without bytecode compilation
+- **Mark-and-Sweep Garbage Collection**: Automatic memory management with object graph tracing
+- **Interactive REPL**: Real-time expression evaluation with persistent variables
 
 ## Syntax
 
@@ -37,6 +44,24 @@ arr := [1, 2, 3, 4, 5]
 
 ### REPL Commands
 - `.exit` - Exit the REPL and free memory
+- `clear` - Clear the terminal screen
+
+## Architecture
+
+### Memory Management
+Sweep uses a **mark-and-sweep garbage collector** inspired by the algorithm first described by John McCarthy in 1960. The GC operates in two phases:
+
+1. **Mark Phase**: Traverses the object graph from roots (symbol table), marking all reachable objects
+2. **Sweep Phase**: Iterates over all tracked objects, freeing unmarked objects (garbage)
+
+The GC tracks all allocated objects in a VM structure and uses a gray objects stack for depth-first traversal of container objects (VEC3, ARRAY).
+
+### Type System
+All objects are represented by `sw_obj_t` with a discriminated union:
+- Non-container types: INT, FLOAT, STRING
+- Container types: VEC3 (contains 3 objects), ARRAY (contains N objects)
+
+Each object has a `marked` boolean flag used during garbage collection cycles.
 
 ## Examples
 
@@ -59,16 +84,26 @@ Sweep > .exit
 
 ## Future Implementations
 
-- **Functions**: Function definition and calling.
-- **Control Structures**: Conditionals (if/else) and loops (for/while).
-- **Memory Management**: Garbage Collector implementation.
+- **Functions**: Function definition and calling
+- **Control Structures**: Conditionals (if/else) and loops (for/while)
 - **More Operators**: Logical, comparison, etc.
-- **Error Handling**: Better error messages and recovery.
+- **Error Handling**: Better error messages and recovery
+- **Optimizations**: Generational GC, incremental collection
 
 ## Installation
 
+### Prerequisites
+- GCC with C99 support
+- Criterion testing framework (optional, for tests)
+
+### Build
 ```bash
 make
+```
+
+### Run Tests
+```bash
+make test
 ```
 
 ## Usage
