@@ -34,29 +34,13 @@ int main() {
             continue;
         }
 
-        printf("\nStatement: %s\n", input_buffer->buffer);
-
         token_t *tokens = sw_lex(input_buffer->buffer);
-        printf("Tokens: [");
-        int token_count = 0;
-        while (tokens[token_count].kind != TOKEN_EOF)
-            token_count++;
-        for (int i = 0; i < token_count; i++) {
-            printf("%s", tokens[i].lexeme);
-            if (i < token_count - 1)
-                printf(", ");
-        }
-        printf("]\n");
 
         AST *ast = parse(tokens);
         if (ast) {
-            printf("AST: ");
-            ast_print(ast);
-            printf("\n");
-
             sw_obj_t *result = sw_eval(ast);
             if (result) {
-                printf("Result: ");
+                printf("\n");
                 sw_print(result);
                 printf("\n");
             } else {
