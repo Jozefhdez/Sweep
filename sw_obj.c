@@ -113,7 +113,8 @@ void sw_print(sw_obj_t *obj) {
         printf("[");
         for (size_t i = 0; i < obj->data.v_array.size; i++) {
             sw_print(obj->data.v_array.elements[i]);
-            if (i < obj->data.v_array.size - 1) printf(", ");
+            if (i < obj->data.v_array.size - 1)
+                printf(", ");
         }
         printf("]");
         break;
