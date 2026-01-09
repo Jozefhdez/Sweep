@@ -1,4 +1,5 @@
 #include "sw_array.h"
+#include "sw_input.h"
 #include "sw_interpreter.h"
 #include "sw_lexer.h"
 #include "sw_obj.h"
@@ -8,28 +9,50 @@
 #include <stdlib.h>
 #include <string.h>
 
+void print_prompt() {
+    printf("Sweep > ");
+}
+
+// remember to delete unnecesarry prints and only left the result
+
 int main() {
-    // Test multiple Sweep statements
-    const char *code = "x := (1,2,3) + (4,5,6)\ny := x * 2\nz := y - (1,1,1)";
+    InputBuffer *input_buffer = new_input_buffer();
 
-    // Split code by newlines for multiple statements
-    char *code_copy = strdup(code);
-    char *line = strtok(code_copy, "\n");
-    while (line != NULL) {
-        printf("Statement: %s\n", line);
+    while (true) {
+        print_prompt();
+        read_input(input_buffer);
 
-        token_t *tokens = sw_lex(line);
-        printf("Tokens:\n");
-        for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
-            printf("  %s\n", tokens[i].lexeme);
+        if (input_buffer->buffer[0] == '.') {
+            MetaCommandType type = get_meta_command_type(input_buffer->buffer);
+            if (type == COMMAND_EXIT) {
+                close_input_buffer(input_buffer);
+                free_symbols();
+                return 0;
+            } else {
+                printf("Unrecognized command '%s'\n", input_buffer->buffer);
+            }
+            continue;
         }
-        printf("\n");
+
+        printf("\nStatement: %s\n", input_buffer->buffer);
+
+        token_t *tokens = sw_lex(input_buffer->buffer);
+        printf("Tokens: [");
+        int token_count = 0;
+        while (tokens[token_count].kind != TOKEN_EOF)
+            token_count++;
+        for (int i = 0; i < token_count; i++) {
+            printf("%s", tokens[i].lexeme);
+            if (i < token_count - 1)
+                printf(", ");
+        }
+        printf("]\n");
 
         AST *ast = parse(tokens);
         if (ast) {
             printf("AST: ");
             ast_print(ast);
-            printf("\n\n");
+            printf("\n");
 
             sw_obj_t *result = sw_eval(ast);
             if (result) {
@@ -47,8 +70,5 @@ int main() {
 
         free_tokens(tokens);
         printf("\n");
-        line = strtok(NULL, "\n");
     }
-    free(code_copy);
-    return 0;
 }

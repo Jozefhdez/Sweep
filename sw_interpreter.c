@@ -1,4 +1,5 @@
 #include "include/sw_interpreter.h"
+#include "include/sw_array.h"
 #include "include/sw_obj.h"
 #include "include/sw_ops.h"
 #include <stdlib.h>
@@ -56,6 +57,18 @@ sw_obj_t *sw_eval(AST *ast) {
             return NULL;
         return sw_vec3(x, y, z);
     }
+    case TOKEN_ARRAY: {
+        sw_obj_t *arr = sw_array(ast->TOKEN_ARRAY.count);
+        if (!arr)
+            return NULL;
+        for (int i = 0; i < ast->TOKEN_ARRAY.count; i++) {
+            sw_obj_t *elem = sw_eval(ast->TOKEN_ARRAY.elements[i]);
+            if (!elem)
+                return NULL;
+            sw_array_set(arr, i, elem);
+        }
+        return arr;
+    }
     case TOKEN_ID:
         return get_var(ast->TOKEN_ID.name);
     case TOKEN_ASSIGN: {
@@ -96,4 +109,12 @@ sw_obj_t *sw_eval(AST *ast) {
     default:
         return NULL;
     }
+}
+
+void free_symbols() {
+    for (int i = 0; i < symbol_count; i++) {
+        free(symbols[i].name);
+        // note: not freeing values (sw_obj_t*) as no garbage collector yet
+    }
+    symbol_count = 0;
 }

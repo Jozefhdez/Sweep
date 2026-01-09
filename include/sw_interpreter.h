@@ -4,5 +4,6 @@
 #include "sw_types.h"
 
 sw_obj_t *sw_eval(AST *ast);
+void free_symbols();
 
 #endif

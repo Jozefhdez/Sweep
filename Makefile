@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -Werror -g -Iinclude -fsanitize=address
 TARGET = build/main
-SRCS = main.c sw_obj.c sw_array.c sw_ops.c sw_lexer.c sw_parser.c sw_interpreter.c
+SRCS = main.c sw_obj.c sw_array.c sw_ops.c sw_lexer.c sw_parser.c sw_interpreter.c sw_input.c
 OBJS = $(addprefix build/, $(SRCS:.c=.o))
 
 .PHONY: all clean

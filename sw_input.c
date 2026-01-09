@@ -1,0 +1,51 @@
+#define _POSIX_C_SOURCE 200809L
+#include "include/sw_input.h"
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+InputBuffer *new_input_buffer() {
+    InputBuffer *input_buffer = (InputBuffer *)malloc(sizeof(InputBuffer));
+    input_buffer->buffer = NULL;
+    input_buffer->buffer_length = 0;
+    input_buffer->input_length = 0;
+    return input_buffer;
+}
+
+void read_input(InputBuffer *input_buffer) {
+    size_t bytes_read =
+        getline(&(input_buffer->buffer), &(input_buffer->buffer_length), stdin);
+
+    if (bytes_read <= 0) {
+        printf("Error reading input\n");
+        exit(EXIT_FAILURE);
+    }
+
+    input_buffer->input_length = bytes_read - 1;
+    input_buffer->buffer[bytes_read - 1] = 0;
+}
+
+void close_input_buffer(InputBuffer *input_buffer) {
+    free(input_buffer->buffer);
+    free(input_buffer);
+}
+
+MetaCommandType get_meta_command_type(const char *buffer) {
+    if (strcmp(buffer, ".exit") == 0)
+        return COMMAND_EXIT;
+    return COMMAND_UNKNOWN;
+}
+
+MetaCommandResult do_meta_command(InputBuffer *input_buffer) {
+    MetaCommandType command = get_meta_command_type(input_buffer->buffer);
+    switch (command) {
+    case COMMAND_EXIT:
+        exit(EXIT_SUCCESS);
+    case COMMAND_UNKNOWN:
+    default:
+        return META_COMMAND_UNRECOGNIZED_COMMAND;
+    }
+}

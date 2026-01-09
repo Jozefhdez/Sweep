@@ -25,6 +25,10 @@ struct AST {
             AST *y;
             AST *z;
         } TOKEN_VECTOR3;
+        struct TOKEN_ARRAY {
+            AST **elements;
+            int count;
+        } TOKEN_ARRAY;
         struct TOKEN_ID {
             char *name;
         } TOKEN_ID;

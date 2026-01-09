@@ -49,6 +49,16 @@ void ast_print(AST *ptr) {
         printf(")");
         break;
     }
+    case TOKEN_ARRAY: {
+        printf("[");
+        for (int i = 0; i < ast.TOKEN_ARRAY.count; i++) {
+            ast_print(ast.TOKEN_ARRAY.elements[i]);
+            if (i < ast.TOKEN_ARRAY.count - 1)
+                printf(", ");
+        }
+        printf("]");
+        break;
+    }
     case TOKEN_ID: {
         printf("%s", ast.TOKEN_ID.name);
         break;
@@ -115,6 +125,13 @@ void ast_free(AST *ast) {
         ast_free(ast->TOKEN_VECTOR3.x);
         ast_free(ast->TOKEN_VECTOR3.y);
         ast_free(ast->TOKEN_VECTOR3.z);
+        free(ast);
+        break;
+    case TOKEN_ARRAY:
+        for (int i = 0; i < ast->TOKEN_ARRAY.count; i++) {
+            ast_free(ast->TOKEN_ARRAY.elements[i]);
+        }
+        free(ast->TOKEN_ARRAY.elements);
         free(ast);
         break;
     case TOKEN_ID:
@@ -241,6 +258,39 @@ static AST *parse_factor() {
     if (match(TOKEN_ID)) {
         return ast_new((AST){
             TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current - 1].lexeme)}}});
+    }
+    if (match(TOKEN_LBRACKET)) {
+        // Array literal [1, 2, 3]
+        int capacity = 4;
+        AST **elements = malloc(sizeof(AST *) * capacity);
+        int count = 0;
+
+        if (!match(TOKEN_RBRACKET)) {
+            do {
+                if (count >= capacity) {
+                    capacity *= 2;
+                    elements = realloc(elements, sizeof(AST *) * capacity);
+                }
+                AST *elem = parse_expr();
+                if (!elem) {
+                    for (int i = 0; i < count; i++)
+                        ast_free(elements[i]);
+                    free(elements);
+                    return NULL;
+                }
+                elements[count++] = elem;
+            } while (match(TOKEN_COMMA));
+
+            if (!match(TOKEN_RBRACKET)) {
+                // error: missing ]
+                for (int i = 0; i < count; i++)
+                    ast_free(elements[i]);
+                free(elements);
+                return NULL;
+            }
+        }
+
+        return ast_new((AST){TOKEN_ARRAY, {.TOKEN_ARRAY = {elements, count}}});
     }
     if (match(TOKEN_LPAREN)) {
         AST *first = parse_expr();
