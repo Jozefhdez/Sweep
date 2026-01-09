@@ -1,4 +1,5 @@
 #include "sw_array.h"
+#include "sw_interpreter.h"
 #include "sw_lexer.h"
 #include "sw_obj.h"
 #include "sw_ops.h"
@@ -121,21 +122,27 @@ int main() {
     }
 
     printf("\nTesting lexer\n\n");
-    token_t *tokens = sw_lex("5 + 3 * 2");
+    token_t *tokens = sw_lex("5 * 10 * 20 + 3 * 2");
     for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
         printf("Token %d: %s (kind %d)\n", i, tokens[i].lexeme, tokens[i].kind);
     }
 
-    printf("\nTesting parser\n\n");
+    printf("\nTesting parser and interpreter\n\n");
     AST *ast = parse(tokens);
     if (ast) {
         ast_print(ast);
         printf("\n");
+        sw_obj_t *result = sw_eval(ast);
+        if (result) {
+            printf("Result: ");
+            sw_print(result);
+            printf("\n");
+        } else {
+            printf("Evaluation error\n");
+        }
         ast_free(ast);
     } else {
         printf("Parse error\n");
     }
-
-    free_tokens(tokens);
     return 0;
 }

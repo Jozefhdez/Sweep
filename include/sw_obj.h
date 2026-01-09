@@ -8,5 +8,6 @@ sw_obj_t *sw_float(float value);
 sw_obj_t *sw_string(char *value);
 sw_obj_t *sw_vec3(sw_obj_t *x, sw_obj_t *y, sw_obj_t *z);
 sw_obj_t *sw_array(size_t size);
+void sw_print(sw_obj_t *obj);
 
 #endif

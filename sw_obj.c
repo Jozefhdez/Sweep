@@ -1,4 +1,5 @@
 #include "sw_obj.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,4 +83,41 @@ sw_obj_t *sw_array(size_t size) {
     obj->data.v_array = arr;
 
     return obj;
+}
+
+void sw_print(sw_obj_t *obj) {
+    if (!obj) {
+        printf("NULL");
+        return;
+    }
+    switch (obj->kind) {
+    case SW_INT:
+        printf("%d", obj->data.v_int);
+        break;
+    case SW_FLOAT:
+        printf("%f", obj->data.v_float);
+        break;
+    case SW_STRING:
+        printf("\"%s\"", obj->data.v_string);
+        break;
+    case SW_VEC3:
+        printf("[");
+        sw_print(obj->data.v_vec3.x);
+        printf(", ");
+        sw_print(obj->data.v_vec3.y);
+        printf(", ");
+        sw_print(obj->data.v_vec3.z);
+        printf("]");
+        break;
+    case SW_ARRAY:
+        printf("[");
+        for (size_t i = 0; i < obj->data.v_array.size; i++) {
+            sw_print(obj->data.v_array.elements[i]);
+            if (i < obj->data.v_array.size - 1) printf(", ");
+        }
+        printf("]");
+        break;
+    default:
+        printf("UNKNOWN");
+    }
 }
