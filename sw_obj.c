@@ -3,6 +3,68 @@
 #include <stdlib.h>
 #include <string.h>
 
+sw_obj_t *_new_sw_object() {
+    sw_obj_t *sw_obj = calloc(1, sizeof(sw_obj_t));
+
+    if (sw_obj == NULL) {
+        return NULL;
+    }
+
+    sw_obj->refcount = 1;
+    return sw_obj;
+}
+
+void refcount_inc(sw_obj_t *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
+    obj->refcount++;
+}
+
+void refcount_dec(sw_obj_t *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
+    obj->refcount--;
+    if (obj->refcount <= 0) {
+        refcount_free(obj);
+    }
+}
+
+void refcount_free(sw_obj_t *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
+    switch (obj->kind) {
+    case SW_INT:
+        free(obj);
+        break;
+    case SW_FLOAT:
+        free(obj);
+        break;
+    case SW_STRING:
+        free(obj->data.v_string);
+        free(obj);
+        break;
+    case SW_VEC3:
+        refcount_dec(obj->data.v_vec3.x);
+        refcount_dec(obj->data.v_vec3.y);
+        refcount_dec(obj->data.v_vec3.z);
+        free(obj);
+        break;
+    case SW_ARRAY:
+        for (size_t i = 0; i < obj->data.v_array.size; i++) {
+            refcount_dec(obj->data.v_array.elements[i]);
+        }
+        free(obj->data.v_array.elements);
+        free(obj);
+        break;
+    }
+}
+
 sw_obj_t *sw_int(int value) {
     sw_obj_t *obj = (sw_obj_t *)malloc(sizeof(sw_obj_t));
 
@@ -62,6 +124,10 @@ sw_obj_t *sw_vec3(sw_obj_t *x, sw_obj_t *y, sw_obj_t *z) {
     obj->kind = SW_VEC3;
     sw_vec3_t vec = (sw_vec3_t){.x = x, .y = y, .z = z};
     obj->data.v_vec3 = vec;
+
+    refcount_inc(obj->data.v_vec3.x);
+    refcount_inc(obj->data.v_vec3.y);
+    refcount_inc(obj->data.v_vec3.z);
 
     return obj;
 }

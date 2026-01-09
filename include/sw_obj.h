@@ -3,6 +3,10 @@
 
 #include "sw_types.h"
 
+sw_obj_t *_new_sw_object();
+void refcount_inc(sw_obj_t *obj);
+void refcount_dec(sw_obj_t *obj);
+void refcount_free(sw_obj_t *obj);
 sw_obj_t *sw_int(int value);
 sw_obj_t *sw_float(float value);
 sw_obj_t *sw_string(char *value);

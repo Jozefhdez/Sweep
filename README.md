@@ -1,7 +1,5 @@
 # Sweep Programming Language
 
-## Description
-
 Sweep is a dynamic programming language with an interactive REPL. It features an object system with dynamic typing, supporting integers, floats, strings, 3D vectors, and arrays. It includes arithmetic operations with automatic type coercion, variables, and expression evaluation.
 
 ## Syntax
