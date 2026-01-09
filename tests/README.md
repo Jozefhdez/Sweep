@@ -40,27 +40,3 @@ Clean test binaries:
 ```bash
 make clean
 ```
-
-## Test Output
-
-Criterion provides colored output with:
-- ✓ Passing tests in green
-- ✗ Failing tests in red
-- Detailed assertion failure messages
-- Test execution time
-- Summary statistics
-
-## Writing New Tests
-
-Use the `Test()` macro to define tests:
-```c
-#include <criterion/criterion.h>
-
-Test(suite_name, test_name) {
-    cr_assert_eq(actual, expected, "message");
-    cr_assert_not_null(ptr, "message");
-    cr_assert_str_eq(str1, str2, "message");
-}
-```
-
-See [Criterion documentation](https://criterion.readthedocs.io/) for more assertion macros.
