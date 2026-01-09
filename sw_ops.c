@@ -145,3 +145,46 @@ sw_obj_t *sw_sub(sw_obj_t *a, sw_obj_t *b) {
         break;
     }
 }
+
+sw_obj_t *sw_mul(sw_obj_t *a, sw_obj_t *b) {
+    if (a == NULL || b == NULL) {
+        return NULL;
+    }
+
+    switch (a->kind) {
+    case SW_INT:
+        if (b->kind == SW_INT) {
+            return sw_int(a->data.v_int * b->data.v_int);
+        } else if (b->kind == SW_FLOAT) {
+            return sw_float(a->data.v_int * b->data.v_float);
+        } else {
+            return NULL;
+        }
+        break;
+    case SW_FLOAT:
+        if (b->kind == SW_INT) {
+            return sw_int(a->data.v_float * b->data.v_int);
+        } else if (b->kind == SW_FLOAT) {
+            return sw_float(a->data.v_float * b->data.v_float);
+        } else {
+            return NULL;
+        }
+        break;
+    case SW_ARRAY:
+        return NULL;
+        break;
+    case SW_VEC3:
+        if (b->kind != SW_VEC3) {
+            return NULL;
+        } else {
+            sw_obj_t *x = sw_sub(a->data.v_vec3.x, b->data.v_vec3.x);
+            sw_obj_t *y = sw_sub(a->data.v_vec3.y, b->data.v_vec3.y);
+            sw_obj_t *z = sw_sub(a->data.v_vec3.z, b->data.v_vec3.z);
+            return sw_vec3(x, y, z);
+        }
+        break;
+    default:
+        return NULL;
+        break;
+    }
+}

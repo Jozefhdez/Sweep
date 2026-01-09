@@ -14,10 +14,10 @@ int main() {
     sw_obj_t *float1 = sw_float(3.5);
     sw_obj_t *float2 = sw_float(2.5);
     sw_obj_t *float_sum = sw_add(float1, float2);
-    printf("Float: 3.5 + 2.5 = %.1f\n", float_sum->data.v_float);
+    printf("Float: 3.5 + 2.5 = %f\n", float_sum->data.v_float);
 
     sw_obj_t *int_float_sum = sw_add(int1, float1);
-    printf("Int + Float: 10 + 3.5 = %.1f\n", int_float_sum->data.v_float);
+    printf("Int + Float: 10 + 3.5 = %f\n", int_float_sum->data.v_float);
 
     sw_obj_t *str1 = sw_string("Hello ");
     sw_obj_t *str2 = sw_string("World!");
@@ -51,28 +51,39 @@ int main() {
     }
     printf("]\n");
 
-    printf("Testing sw_sub\n\n");
+    printf("\nTesting sw_sub\n\n");
 
-    sw_obj_t *int3 = sw_int(10);
-    sw_obj_t *int4 = sw_int(20);
-    sw_obj_t *int_sub = sw_sub(int3, int4);
+    sw_obj_t *int_sub = sw_sub(int1, int2);
     printf("Integer: 10 - 20 = %d\n", int_sub->data.v_int);
 
-    sw_obj_t *float3 = sw_float(3.5);
-    sw_obj_t *float4 = sw_float(2.5);
-    sw_obj_t *float_sub = sw_sub(float3, float4);
+    sw_obj_t *float_sub = sw_sub(float1, float2);
     printf("Float: 3.5 - 2.5 = %.1f\n", float_sub->data.v_float);
 
     sw_obj_t *int_float_sub = sw_sub(int1, float1);
     printf("Int - Float: 10 - 3.5 = %.1f\n", int_float_sub->data.v_float);
 
-    sw_obj_t *v3 = sw_vec3(int1, int2, sw_int(30));
-    sw_obj_t *v4 = sw_vec3(sw_int(1), sw_int(2), sw_int(3));
-    sw_obj_t *vec_sub = sw_sub(v3, v4);
+    sw_obj_t *vec_sub = sw_sub(v1, v2);
     printf("Vector3: [10,20,30] - [1,2,3] = [%d,%d,%d]\n",
            vec_sub->data.v_vec3.x->data.v_int,
            vec_sub->data.v_vec3.y->data.v_int,
            vec_sub->data.v_vec3.z->data.v_int);
+
+    printf("\nTesting sw_mul\n\n");
+
+    sw_obj_t *int_mul = sw_mul(int1, int2);
+    printf("Integer: 10 * 20 = %d\n", int_mul->data.v_int);
+
+    sw_obj_t *float_mul = sw_mul(float1, float2);
+    printf("Float: 3.5 * 2.5 = %f\n", float_mul->data.v_float);
+
+    sw_obj_t *int_float_mul = sw_mul(int1, float1);
+    printf("Int * Float: 10 * 3.5 = %f\n", int_float_mul->data.v_float);
+
+    sw_obj_t *vec_mul = sw_mul(v1, v2);
+    printf("Vector3: [10,20,30] * [1,2,3] = [%d,%d,%d]\n",
+           vec_mul->data.v_vec3.x->data.v_int,
+           vec_mul->data.v_vec3.y->data.v_int,
+           vec_mul->data.v_vec3.z->data.v_int);
 
     return 0;
 }
