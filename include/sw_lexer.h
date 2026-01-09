@@ -24,5 +24,6 @@ typedef struct {
 } token_t;
 
 token_t *sw_lex(const char *source);
+void free_tokens(token_t *tokens);
 
 #endif

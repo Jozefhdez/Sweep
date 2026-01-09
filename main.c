@@ -124,5 +124,7 @@ int main() {
     for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
         printf("Token %d: %s (kind %d)\n", i, tokens[i].lexeme, tokens[i].kind);
     }
+
+    free_tokens(tokens);
     return 0;
 }
