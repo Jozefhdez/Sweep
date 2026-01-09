@@ -2,7 +2,7 @@
 
 ## Description
 
-Sweep is a dynamic programming language under development, designed to be simple and expressive. It currently features an object system that supports basic types such as integers, floats, strings, 3D vectors, and arrays, with basic operations like addition.
+Sweep is a dynamic programming language under development, designed to be simple and expressive. It features an object system with dynamic typing, supporting integers, floats, strings, 3D vectors, and arrays. It includes arithmetic operations with automatic type coercion, variables, and expression evaluation.
 
 ## Installation
 
@@ -16,82 +16,73 @@ make
 ./build/main
 ```
 
+The program currently evaluates a hardcoded expression. Future versions will include a REPL.
+
 ## Syntax
 
-Sweep features a creative, expressive syntax inspired by mathematics and data manipulation. It's designed to feel like "sweeping" through data with ease. Below is the proposed syntax (subject to change):
+Sweep uses a simple, expression-based syntax. Statements are separated by newlines.
 
-### Variables and Assignment
-```
-x := 5
-name := "Sweep"
-```
+### Literals
+- Integers: `42`
+- Floats: `3.14`
+- Strings: `"Hello"`
+- Vectors: `vec3(1, 2, 3)`
+- Arrays: `[1, 2, 3]`
 
 ### Operations
+Arithmetic operators with precedence: `*`, `/` (highest), `+`, `-` (lowest). Automatic type coercion for compatible types.
+
+Examples:
 ```
-sum := x + 3
-message := name + " Language"
-vector_sum := vec3(1,2,3) + vec3(4,5,6)  // Results in vec3(5,7,9)
-array_concat := [1,2] ++ [3,4]  // Results in [1,2,3,4]
+5 + 3 * 2        // 11
+3.5 + 2          // 5.5
+"Hello " + "World"  // "Hello World"
+vec3(1,2,3) + vec3(4,5,6)  // vec3(5,7,9)
+[1,2] + [3,4]    // [1,2,3,4]
 ```
 
-### Functions
-```
-add := fn(a, b) => a + b;
-result := add(2, 3);
+### Variables and Assignment
+Use `:=` for assignment (right-associative).
 
-complex_fn := fn(x) {
-    if x > 10 {
-        return x * 2;
-    } else {
-        return x + 1;
-    }
-}
+```
+x := 5
+y := x + 3       // 8
+z := "Value: " + y  // "Value: 8"
 ```
 
-### Control Structures
+### Multiple Statements
+Separate statements with newlines.
+
 ```
-if x > 10 {
-    print("Large!");
-} elif x > 5 {
-    print("Medium!");
-} else {
-    print("Small!");
-}
-
-for i in 0..10 {
-    print(i);
-}
-
-while x < 100 {
-    x := x * 2;
-}
+x := 5 + 3
+y := x * 2
 ```
 
-### Data Types
-```
-int := 42;
-float := 3.14;
-str := "Hello";
-vec := vec3(1.0, 2.0, 3.0);
-arr := [1, 2, 3, 4];
-```
+## Examples
 
-### Comments
+Running `./build/main` evaluates `x := 5 + 3` and prints:
 ```
-// Line comment
-/* Block comment */
+Testing Sweep expression: x := 5 + 3
+
+Tokens:
+  x
+  :=
+  5
+  +
+  3
+
+AST: x := (5 + 3)
+
+Result: 8
 ```
 
 ## Future Implementations
 
-- **Lexer**: Source code tokenization.
-- **Parser**: Abstract Syntax Tree (AST) construction.
-- **Interpreter**: Code execution from the AST.
-- **Variables and Assignment**: Support for declaring and using variables.
 - **Functions**: Function definition and calling.
 - **Control Structures**: Conditionals (if/else) and loops (for/while).
 - **Memory Management**: Garbage Collector implementation.
 - **REPL**: Interactive interface for real-time code testing.
-- **More Operators**: Addition, subtraction, multiplication, division, etc., for all types.
 - **Modules and Libraries**: Module import system.
+- **More Operators**: Logical, comparison, etc.
+- **Error Handling**: Better error messages and recovery.
 

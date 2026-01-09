@@ -70,6 +70,18 @@ token_t *sw_lex(const char *source) {
         case ';':
             tokens[count++] = make_token(TOKEN_SEMI, &source[start], 1, line);
             break;
+        case '"':
+            start = current;
+            while (source[current] != '"' && source[current] != '\0') {
+                current++;
+            }
+            int length = current - start;
+            if (source[current] == '"') {
+                current++;
+            }
+            tokens[count++] =
+                make_token(TOKEN_STRING, &source[start], length, line);
+            break;
         default:
             if (is_digit(c)) {
                 while (is_digit(source[current])) {

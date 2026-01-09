@@ -8,6 +8,7 @@ static token_t *tokens;
 static int current = 0;
 
 static AST *parse_expr();
+static AST *parse_add();
 static AST *parse_term();
 static AST *parse_factor();
 static int match(token_kind_t kind);
@@ -32,6 +33,10 @@ void ast_print(AST *ptr) {
     }
     case TOKEN_FLOAT: {
         printf("%f", ast.TOKEN_FLOAT.number);
+        break;
+    }
+    case TOKEN_STRING: {
+        printf("\"%s\"", ast.TOKEN_STRING.value);
         break;
     }
     case TOKEN_ID: {
@@ -92,6 +97,10 @@ void ast_free(AST *ast) {
     case TOKEN_FLOAT:
         free(ast);
         break;
+    case TOKEN_STRING:
+        free(ast->TOKEN_STRING.value);
+        free(ast);
+        break;
     case TOKEN_ID:
         free(ast->TOKEN_ID.name);
         free(ast);
@@ -127,19 +136,46 @@ AST *parse(token_t *toks) {
 }
 
 /*
-    Parses low precedence operators, reads a term and repeats while it finds +
-   or
+    Parses expressions, including assignments with lowest precedence
+*/
+static AST *parse_expr() {
+    AST *left = parse_add();
+    if (!left)
+        return NULL;
+    if (match(TOKEN_ASSIGN)) {
+        AST *right = parse_expr();
+        if (!right)
+            return NULL;
+        AST *new_left =
+            ast_new((AST){TOKEN_ASSIGN, {.TOKEN_ASSIGN = {left, right}}});
+        if (!new_left)
+            return NULL;
+        left = new_left;
+    }
+    return left;
+}
+
+/*
+    Parses low precedence operators (+ and -), reads a term and repeats while it
+   finds + or
    -, creating recursive binary nodes.
 
    Ej. for 5 + 3 - 2 it creates ((5 + 3) - 2)
 */
-static AST *parse_expr() {
+static AST *parse_add() {
     AST *left = parse_term();
+    if (!left)
+        return NULL;
     while (match(TOKEN_PLUS) || match(TOKEN_MINUS)) {
         token_kind_t op = tokens[current - 1].kind; // matching op
         AST *right = parse_term();
-        left = ast_new(
+        if (!right)
+            return NULL;
+        AST *new_left = ast_new(
             (AST){op, {.TOKEN_PLUS = {left, right}}}); // adjust for correct op
+        if (!new_left)
+            return NULL;
+        left = new_left;
     }
     return left;
 }
@@ -147,15 +183,22 @@ static AST *parse_expr() {
 /*
    Parses terms with high precedence (* and /), it reads a factor and repeats
    while it finds * or /. Ej. for 3 * 2 + 1, first it parses 3 * 2, then
-   parse_expr() adds + 1
+   parse_add() adds + 1
 */
 
 static AST *parse_term() {
     AST *left = parse_factor();
+    if (!left)
+        return NULL;
     while (match(TOKEN_MUL) || match(TOKEN_DIV)) {
         token_kind_t op = tokens[current - 1].kind;
         AST *right = parse_factor();
-        left = ast_new((AST){op, {.TOKEN_MUL = {left, right}}});
+        if (!right)
+            return NULL;
+        AST *new_left = ast_new((AST){op, {.TOKEN_MUL = {left, right}}});
+        if (!new_left)
+            return NULL;
+        left = new_left;
     }
     return left;
 }
@@ -173,6 +216,11 @@ static AST *parse_factor() {
     if (match(TOKEN_FLOAT)) {
         return ast_new((AST){
             TOKEN_FLOAT, {.TOKEN_FLOAT = {atof(tokens[current - 1].lexeme)}}});
+    }
+    if (match(TOKEN_STRING)) {
+        return ast_new(
+            (AST){TOKEN_STRING,
+                  {.TOKEN_STRING = {strdup(tokens[current - 1].lexeme)}}});
     }
     if (match(TOKEN_ID)) {
         return ast_new((AST){

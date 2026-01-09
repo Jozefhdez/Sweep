@@ -5,6 +5,7 @@ typedef enum {
     TOKEN_EOF,    // end of input
     TOKEN_INT,    // 67
     TOKEN_FLOAT,  // 6.7
+    TOKEN_STRING, // "hello"
     TOKEN_ID,     // ej. x, var
     TOKEN_ASSIGN, // :=
     TOKEN_PLUS,   // +

@@ -17,6 +17,9 @@ struct AST {
         struct TOKEN_FLOAT {
             float number;
         } TOKEN_FLOAT;
+        struct TOKEN_STRING {
+            char *value;
+        } TOKEN_STRING;
         struct TOKEN_ID {
             char *name;
         } TOKEN_ID;

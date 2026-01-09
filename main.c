@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 int main() {
-    const char *code = "5 + 3 * 2";
+    const char *code = "x := \"hello\" + \" world!\"";
 
     printf("Testing Sweep expression: %s\n\n", code);
 
