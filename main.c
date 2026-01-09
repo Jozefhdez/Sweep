@@ -85,5 +85,38 @@ int main() {
            vec_mul->data.v_vec3.y->data.v_int,
            vec_mul->data.v_vec3.z->data.v_int);
 
+    printf("\nTesting sw_div\n\n");
+
+    sw_obj_t *int_div = sw_div(int1, int2);
+    if (int_div) {
+        printf("Integer: 10 / 20 = %f\n", int_div->data.v_float);
+    } else {
+        printf("Integer: 10 / 20 = Division by zero or error\n");
+    }
+
+    sw_obj_t *float_div = sw_div(float1, float2);
+    if (float_div) {
+        printf("Float: 3.5 / 2.5 = %f\n", float_div->data.v_float);
+    } else {
+        printf("Float: 3.5 / 2.5 = Error\n");
+    }
+
+    sw_obj_t *int_float_div = sw_div(int1, float1);
+    if (int_float_div) {
+        printf("Int / Float: 10 / 3.5 = %f\n", int_float_div->data.v_float);
+    } else {
+        printf("Int / Float: 10 / 3.5 = Error\n");
+    }
+
+    sw_obj_t *vec_div = sw_div(v1, v2);
+    if (vec_div) {
+        printf("Vector3: [10,20,30] / [1,2,3] = [%f,%f,%f]\n",
+               vec_div->data.v_vec3.x->data.v_float,
+               vec_div->data.v_vec3.y->data.v_float,
+               vec_div->data.v_vec3.z->data.v_float);
+    } else {
+        printf("Vector3: Division error (possibly by zero)\n");
+    }
+
     return 0;
 }
