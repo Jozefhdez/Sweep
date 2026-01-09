@@ -1,4 +1,5 @@
 #include "sw_array.h"
+#include "sw_lexer.h"
 #include "sw_obj.h"
 #include "sw_ops.h"
 #include <stdio.h>
@@ -118,5 +119,10 @@ int main() {
         printf("Vector3: Division error (possibly by zero)\n");
     }
 
+    printf("\nTesting lexer\n\n");
+    token_t *tokens = sw_lex("x := 5 + 3.14");
+    for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
+        printf("Token %d: %s (kind %d)\n", i, tokens[i].lexeme, tokens[i].kind);
+    }
     return 0;
 }

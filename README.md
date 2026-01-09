@@ -36,14 +36,14 @@ array_concat := [1,2] ++ [3,4]  // Results in [1,2,3,4]
 
 ### Functions
 ```
-add := fn(a, b) => a + b
-result := add(2, 3)
+add := fn(a, b) => a + b;
+result := add(2, 3);
 
 complex_fn := fn(x) {
     if x > 10 {
-        return x * 2
+        return x * 2;
     } else {
-        return x + 1
+        return x + 1;
     }
 }
 ```
@@ -51,29 +51,29 @@ complex_fn := fn(x) {
 ### Control Structures
 ```
 if x > 10 {
-    print("Large!")
+    print("Large!");
 } elif x > 5 {
-    print("Medium!")
+    print("Medium!");
 } else {
-    print("Small!")
+    print("Small!");
 }
 
 for i in 0..10 {
-    print(i)
+    print(i);
 }
 
 while x < 100 {
-    x := x * 2
+    x := x * 2;
 }
 ```
 
 ### Data Types
 ```
-int := 42
-float := 3.14
-str := "Hello"
-vec := vec3(1.0, 2.0, 3.0)
-arr := [1, 2, 3, 4]
+int := 42;
+float := 3.14;
+str := "Hello";
+vec := vec3(1.0, 2.0, 3.0);
+arr := [1, 2, 3, 4];
 ```
 
 ### Comments
