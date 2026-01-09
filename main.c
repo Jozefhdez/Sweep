@@ -7,8 +7,10 @@
 #include <stdio.h>
 
 int main() {
+    // const char *code = "x := 1 + 2 + 3 * 10";
     // const char *code = "x := \"hello\" + \" world!\"";
-    const char *code = "x := (1, 2, 3) + (10, 20, 30)";
+    // const char *code = "x := (1, 2, 3) * (10, 20, 30)";
+    const char *code = "x := 2 * (10, 20, 30)";
 
     printf("Testing Sweep expression: %s\n\n", code);
 

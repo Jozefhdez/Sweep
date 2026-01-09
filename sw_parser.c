@@ -244,14 +244,18 @@ static AST *parse_factor() {
     }
     if (match(TOKEN_LPAREN)) {
         AST *first = parse_expr();
-        if (!first) return NULL;
+        if (!first)
+            return NULL;
         if (match(TOKEN_COMMA)) {
             // vector literal (1,2,3)
             AST *second = parse_expr();
-            if (!second || !match(TOKEN_COMMA)) return NULL;
+            if (!second || !match(TOKEN_COMMA))
+                return NULL;
             AST *third = parse_expr();
-            if (!third || !match(TOKEN_RPAREN)) return NULL;
-            return ast_new((AST){TOKEN_VECTOR3, {.TOKEN_VECTOR3 = {first, second, third}}});
+            if (!third || !match(TOKEN_RPAREN))
+                return NULL;
+            return ast_new((AST){TOKEN_VECTOR3,
+                                 {.TOKEN_VECTOR3 = {first, second, third}}});
         } else if (match(TOKEN_RPAREN)) {
             // parenthesized expression
             return first;
