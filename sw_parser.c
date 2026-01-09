@@ -145,8 +145,8 @@ static AST *parse_expr() {
 }
 
 /*
-   Parses terms with high precedence (* and /), it reads a factor and repets it
-   while it finds * or /. Ej. for 3 * 2 * 1, first it parses 3 * 2, then
+   Parses terms with high precedence (* and /), it reads a factor and repeats
+   while it finds * or /. Ej. for 3 * 2 + 1, first it parses 3 * 2, then
    parse_expr() adds + 1
 */
 
@@ -161,7 +161,7 @@ static AST *parse_term() {
 }
 
 /*
-    Parses most basic factors, ints, floats, ids or parenteses expressions
+    Parses most basic factors, ints, floats, ids or parenthesized expressions
     Ej. for 6, creates a TOKEN_INT node.
     For (2 + 3), calls recursively parse_expr()
 */
