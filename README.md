@@ -37,7 +37,6 @@ arr := [1, 2, 3, 4, 5]
 
 ### REPL Commands
 - `.exit` - Exit the REPL and free memory
-- `clear` - Clear the terminal screen
 
 ## Examples
 
