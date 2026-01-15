@@ -4,7 +4,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef enum { SW_INT, SW_FLOAT, SW_STRING, SW_VEC3, SW_ARRAY, SW_FUNCTION } sw_kind_t;
+typedef enum {
+    SW_INT,
+    SW_FLOAT,
+    SW_STRING,
+    SW_VEC3,
+    SW_ARRAY,
+    SW_FUNCTION
+} sw_kind_t;
 
 typedef struct sw_obj sw_obj_t;
 
@@ -19,12 +26,19 @@ typedef struct sw_array {
     sw_obj_t **elements;
 } sw_array_t;
 
+typedef struct sw_function {
+    void *body; // AST *
+    char **params;
+    int param_count;
+} sw_function_t;
+
 typedef union {
     int v_int;
     float v_float;
     char *v_string;
     sw_vec3_t v_vec3;
     sw_array_t v_array;
+    sw_function_t v_function;
 } sw_data_t;
 
 struct sw_obj {

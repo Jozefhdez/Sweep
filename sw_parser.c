@@ -174,45 +174,64 @@ AST *parse(token_t *toks) {
 static AST *parse_statement() {
     if (match(TOKEN_FN)) {
         // function definition
-        if (tokens[current].kind != TOKEN_ID) return NULL;
+        if (tokens[current].kind != TOKEN_ID)
+            return NULL;
         char *name = strdup(tokens[current].lexeme);
         current++;
-        if (!match(TOKEN_LPAREN)) return NULL;
+        if (!match(TOKEN_LPAREN))
+            return NULL;
         // parse parameters
         AST **params = NULL;
         int param_count = 0;
         while (tokens[current].kind == TOKEN_ID) {
             params = realloc(params, sizeof(AST *) * (param_count + 1));
-            params[param_count++] = ast_new((AST){TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current].lexeme)}}});
+            params[param_count++] = ast_new((AST){
+                TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current].lexeme)}}});
             current++;
-            if (!match(TOKEN_COMMA)) break;
+            if (!match(TOKEN_COMMA))
+                break;
         }
-        if (!match(TOKEN_RPAREN)) return NULL;
-        if (!match(TOKEN_LBRACE)) return NULL;
+        if (!match(TOKEN_RPAREN))
+            return NULL;
+        if (!match(TOKEN_LBRACE))
+            return NULL;
         AST *body = parse_statement(); // for now, simple body
-        if (!match(TOKEN_RBRACE)) return NULL;
-        return ast_new((AST){TOKEN_FN, {.TOKEN_FN = {name, params, param_count, body}}});
+        if (!match(TOKEN_RBRACE))
+            return NULL;
+        return ast_new(
+            (AST){TOKEN_FN, {.TOKEN_FN = {name, params, param_count, body}}});
     } else if (match(TOKEN_IF)) {
-        if (!match(TOKEN_LPAREN)) return NULL;
+        if (!match(TOKEN_LPAREN))
+            return NULL;
         AST *condition = parse_expr();
-        if (!match(TOKEN_RPAREN)) return NULL;
-        if (!match(TOKEN_LBRACE)) return NULL;
+        if (!match(TOKEN_RPAREN))
+            return NULL;
+        if (!match(TOKEN_LBRACE))
+            return NULL;
         AST *then_branch = parse_statement();
-        if (!match(TOKEN_RBRACE)) return NULL;
+        if (!match(TOKEN_RBRACE))
+            return NULL;
         AST *else_branch = NULL;
         if (match(TOKEN_ELSE)) {
-            if (!match(TOKEN_LBRACE)) return NULL;
+            if (!match(TOKEN_LBRACE))
+                return NULL;
             else_branch = parse_statement();
-            if (!match(TOKEN_RBRACE)) return NULL;
+            if (!match(TOKEN_RBRACE))
+                return NULL;
         }
-        return ast_new((AST){TOKEN_IF, {.TOKEN_IF = {condition, then_branch, else_branch}}});
+        return ast_new((AST){
+            TOKEN_IF, {.TOKEN_IF = {condition, then_branch, else_branch}}});
     } else if (match(TOKEN_WHILE)) {
-        if (!match(TOKEN_LPAREN)) return NULL;
+        if (!match(TOKEN_LPAREN))
+            return NULL;
         AST *condition = parse_expr();
-        if (!match(TOKEN_RPAREN)) return NULL;
-        if (!match(TOKEN_LBRACE)) return NULL;
+        if (!match(TOKEN_RPAREN))
+            return NULL;
+        if (!match(TOKEN_LBRACE))
+            return NULL;
         AST *body = parse_statement();
-        if (!match(TOKEN_RBRACE)) return NULL;
+        if (!match(TOKEN_RBRACE))
+            return NULL;
         return ast_new((AST){TOKEN_WHILE, {.TOKEN_WHILE = {condition, body}}});
     } else if (match(TOKEN_RETURN)) {
         AST *expr = parse_expr();
@@ -239,6 +258,12 @@ static AST *parse_expr() {
             return NULL;
         left = new_left;
     }
+    if (match(TOKEN_SEMI)) {
+        AST *right = parse_expr();
+        if (!right)
+            return NULL;
+        left = ast_new((AST){TOKEN_SEMI, {.TOKEN_SEMI = {left, right}}});
+    }
     return left;
 }
 
@@ -247,12 +272,15 @@ static AST *parse_expr() {
 */
 static AST *parse_logical() {
     AST *left = parse_comparison();
-    if (!left) return NULL;
+    if (!left)
+        return NULL;
     while (match(TOKEN_AND) || match(TOKEN_OR)) {
         token_kind_t op = tokens[current - 1].kind;
         AST *right = parse_comparison();
-        if (!right) return NULL;
-        left = ast_new((AST){op, {.TOKEN_AND = {left, right}}}); // reuse TOKEN_AND for both
+        if (!right)
+            return NULL;
+        left = ast_new((AST){
+            op, {.TOKEN_AND = {left, right}}}); // reuse TOKEN_AND for both
     }
     return left;
 }
@@ -262,12 +290,16 @@ static AST *parse_logical() {
 */
 static AST *parse_comparison() {
     AST *left = parse_add();
-    if (!left) return NULL;
-    if (match(TOKEN_EQ) || match(TOKEN_NEQ) || match(TOKEN_LT) || match(TOKEN_GT) || match(TOKEN_LE) || match(TOKEN_GE)) {
+    if (!left)
+        return NULL;
+    if (match(TOKEN_EQ) || match(TOKEN_NEQ) || match(TOKEN_LT) ||
+        match(TOKEN_GT) || match(TOKEN_LE) || match(TOKEN_GE)) {
         token_kind_t op = tokens[current - 1].kind;
         AST *right = parse_add();
-        if (!right) return NULL;
-        left = ast_new((AST){op, {.TOKEN_EQ = {left, right}}}); // reuse TOKEN_EQ for all
+        if (!right)
+            return NULL;
+        left = ast_new(
+            (AST){op, {.TOKEN_EQ = {left, right}}}); // reuse TOKEN_EQ for all
     }
     return left;
 }
@@ -328,7 +360,8 @@ static AST *parse_term() {
 static AST *parse_factor() {
     if (match(TOKEN_NOT)) {
         AST *expr = parse_factor();
-        if (!expr) return NULL;
+        if (!expr)
+            return NULL;
         return ast_new((AST){TOKEN_NOT, {.TOKEN_NOT = {expr}}});
     }
     if (match(TOKEN_INT)) {
@@ -360,7 +393,8 @@ static AST *parse_factor() {
                     }
                     AST *arg = parse_expr();
                     if (!arg) {
-                        for (int i = 0; i < count; i++) ast_free(args[i]);
+                        for (int i = 0; i < count; i++)
+                            ast_free(args[i]);
                         free(args);
                         ast_free(id);
                         return NULL;
@@ -368,13 +402,15 @@ static AST *parse_factor() {
                     args[count++] = arg;
                 } while (match(TOKEN_COMMA));
                 if (!match(TOKEN_RPAREN)) {
-                    for (int i = 0; i < count; i++) ast_free(args[i]);
+                    for (int i = 0; i < count; i++)
+                        ast_free(args[i]);
                     free(args);
                     ast_free(id);
                     return NULL;
                 }
             }
-            return ast_new((AST){TOKEN_CALL, {.TOKEN_CALL = {id, args, count}}});
+            return ast_new(
+                (AST){TOKEN_CALL, {.TOKEN_CALL = {id, args, count}}});
         }
         return id;
     }

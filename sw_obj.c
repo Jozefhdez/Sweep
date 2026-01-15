@@ -40,6 +40,15 @@ void sw_object_free(sw_obj_t *obj) {
         free(obj->data.v_array.elements);
         free(obj);
         break;
+    case SW_FUNCTION:
+        // free params
+        for (int i = 0; i < obj->data.v_function.param_count; i++) {
+            free(obj->data.v_function.params[i]);
+        }
+        free(obj->data.v_function.params);
+        // body is AST, not freed here
+        free(obj);
+        break;
     }
 }
 
@@ -125,6 +134,21 @@ sw_obj_t *sw_array(size_t size) {
     return obj;
 }
 
+sw_obj_t *sw_function(void *body, char **params, int param_count) {
+    sw_obj_t *obj = malloc(sizeof(sw_obj_t));
+
+    if (obj == NULL) {
+        return NULL;
+    }
+
+    obj->kind = SW_FUNCTION;
+    obj->data.v_function.body = body;
+    obj->data.v_function.params = params;
+    obj->data.v_function.param_count = param_count;
+
+    return obj;
+}
+
 void sw_print(sw_obj_t *obj) {
     if (!obj) {
         printf("NULL");
@@ -157,6 +181,9 @@ void sw_print(sw_obj_t *obj) {
                 printf(", ");
         }
         printf("]");
+        break;
+    case SW_FUNCTION:
+        printf("<function>");
         break;
     default:
         printf("UNKNOWN");
