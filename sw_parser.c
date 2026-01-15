@@ -7,6 +7,9 @@
 static token_t *tokens;
 static int current = 0;
 
+static AST *parse_statement();
+static AST *parse_comparison();
+static AST *parse_logical();
 static AST *parse_expr();
 static AST *parse_add();
 static AST *parse_term();
@@ -165,14 +168,65 @@ void ast_free(AST *ast) {
 AST *parse(token_t *toks) {
     tokens = toks;
     current = 0;
-    return parse_expr();
+    return parse_statement();
+}
+
+static AST *parse_statement() {
+    if (match(TOKEN_FN)) {
+        // function definition
+        if (tokens[current].kind != TOKEN_ID) return NULL;
+        char *name = strdup(tokens[current].lexeme);
+        current++;
+        if (!match(TOKEN_LPAREN)) return NULL;
+        // parse parameters
+        AST **params = NULL;
+        int param_count = 0;
+        while (tokens[current].kind == TOKEN_ID) {
+            params = realloc(params, sizeof(AST *) * (param_count + 1));
+            params[param_count++] = ast_new((AST){TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current].lexeme)}}});
+            current++;
+            if (!match(TOKEN_COMMA)) break;
+        }
+        if (!match(TOKEN_RPAREN)) return NULL;
+        if (!match(TOKEN_LBRACE)) return NULL;
+        AST *body = parse_statement(); // for now, simple body
+        if (!match(TOKEN_RBRACE)) return NULL;
+        return ast_new((AST){TOKEN_FN, {.TOKEN_FN = {name, params, param_count, body}}});
+    } else if (match(TOKEN_IF)) {
+        if (!match(TOKEN_LPAREN)) return NULL;
+        AST *condition = parse_expr();
+        if (!match(TOKEN_RPAREN)) return NULL;
+        if (!match(TOKEN_LBRACE)) return NULL;
+        AST *then_branch = parse_statement();
+        if (!match(TOKEN_RBRACE)) return NULL;
+        AST *else_branch = NULL;
+        if (match(TOKEN_ELSE)) {
+            if (!match(TOKEN_LBRACE)) return NULL;
+            else_branch = parse_statement();
+            if (!match(TOKEN_RBRACE)) return NULL;
+        }
+        return ast_new((AST){TOKEN_IF, {.TOKEN_IF = {condition, then_branch, else_branch}}});
+    } else if (match(TOKEN_WHILE)) {
+        if (!match(TOKEN_LPAREN)) return NULL;
+        AST *condition = parse_expr();
+        if (!match(TOKEN_RPAREN)) return NULL;
+        if (!match(TOKEN_LBRACE)) return NULL;
+        AST *body = parse_statement();
+        if (!match(TOKEN_RBRACE)) return NULL;
+        return ast_new((AST){TOKEN_WHILE, {.TOKEN_WHILE = {condition, body}}});
+    } else if (match(TOKEN_RETURN)) {
+        AST *expr = parse_expr();
+        return ast_new((AST){TOKEN_RETURN, {.TOKEN_RETURN = {expr}}});
+    } else {
+        return parse_expr();
+    }
 }
 
 /*
     Parses expressions, including assignments with lowest precedence
 */
 static AST *parse_expr() {
-    AST *left = parse_add();
+    AST *left = parse_logical();
     if (!left)
         return NULL;
     if (match(TOKEN_ASSIGN)) {
@@ -184,6 +238,36 @@ static AST *parse_expr() {
         if (!new_left)
             return NULL;
         left = new_left;
+    }
+    return left;
+}
+
+/*
+    Parses logical operators (&& and ||)
+*/
+static AST *parse_logical() {
+    AST *left = parse_comparison();
+    if (!left) return NULL;
+    while (match(TOKEN_AND) || match(TOKEN_OR)) {
+        token_kind_t op = tokens[current - 1].kind;
+        AST *right = parse_comparison();
+        if (!right) return NULL;
+        left = ast_new((AST){op, {.TOKEN_AND = {left, right}}}); // reuse TOKEN_AND for both
+    }
+    return left;
+}
+
+/*
+    Parses comparison operators (== != < > <= >=)
+*/
+static AST *parse_comparison() {
+    AST *left = parse_add();
+    if (!left) return NULL;
+    if (match(TOKEN_EQ) || match(TOKEN_NEQ) || match(TOKEN_LT) || match(TOKEN_GT) || match(TOKEN_LE) || match(TOKEN_GE)) {
+        token_kind_t op = tokens[current - 1].kind;
+        AST *right = parse_add();
+        if (!right) return NULL;
+        left = ast_new((AST){op, {.TOKEN_EQ = {left, right}}}); // reuse TOKEN_EQ for all
     }
     return left;
 }
@@ -242,6 +326,11 @@ static AST *parse_term() {
     For (2 + 3), calls recursively parse_expr()
 */
 static AST *parse_factor() {
+    if (match(TOKEN_NOT)) {
+        AST *expr = parse_factor();
+        if (!expr) return NULL;
+        return ast_new((AST){TOKEN_NOT, {.TOKEN_NOT = {expr}}});
+    }
     if (match(TOKEN_INT)) {
         return ast_new((AST){
             TOKEN_INT, {.TOKEN_INT = {atoi(tokens[current - 1].lexeme)}}});
@@ -256,8 +345,38 @@ static AST *parse_factor() {
                   {.TOKEN_STRING = {strdup(tokens[current - 1].lexeme)}}});
     }
     if (match(TOKEN_ID)) {
-        return ast_new((AST){
+        AST *id = ast_new((AST){
             TOKEN_ID, {.TOKEN_ID = {strdup(tokens[current - 1].lexeme)}}});
+        if (match(TOKEN_LPAREN)) {
+            // function call
+            int capacity = 4;
+            AST **args = malloc(sizeof(AST *) * capacity);
+            int count = 0;
+            if (!match(TOKEN_RPAREN)) {
+                do {
+                    if (count >= capacity) {
+                        capacity *= 2;
+                        args = realloc(args, sizeof(AST *) * capacity);
+                    }
+                    AST *arg = parse_expr();
+                    if (!arg) {
+                        for (int i = 0; i < count; i++) ast_free(args[i]);
+                        free(args);
+                        ast_free(id);
+                        return NULL;
+                    }
+                    args[count++] = arg;
+                } while (match(TOKEN_COMMA));
+                if (!match(TOKEN_RPAREN)) {
+                    for (int i = 0; i < count; i++) ast_free(args[i]);
+                    free(args);
+                    ast_free(id);
+                    return NULL;
+                }
+            }
+            return ast_new((AST){TOKEN_CALL, {.TOKEN_CALL = {id, args, count}}});
+        }
+        return id;
     }
     if (match(TOKEN_LBRACKET)) {
         // Array literal [1, 2, 3]

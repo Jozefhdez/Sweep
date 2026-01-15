@@ -8,6 +8,9 @@ Sweep is a dynamic programming language with an interactive REPL. It features an
 - **Tree-Walking Interpreter**: Direct AST evaluation without bytecode compilation
 - **Mark-and-Sweep Garbage Collection**: Automatic memory management with object graph tracing
 - **Interactive REPL**: Real-time expression evaluation with persistent variables
+- **Functions**: Function definition and calling
+- **Control Structures**: Conditionals (if/else) and loops (while)
+- **Operators**: Arithmetic, comparison (== != < > <= >=), logical (&& || !)
 
 ## Syntax
 
@@ -21,6 +24,10 @@ Sweep is a dynamic programming language with an interactive REPL. It features an
 ### Operations
 Arithmetic operators with precedence: `*`, `/` (highest), `+`, `-` (lowest). Automatic type coercion for compatible types. Supports scalar-vector and scalar-array operations.
 
+Comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`
+
+Logical operators: `&&`, `||`, `!`
+
 Examples:
 ```
 5 + 3 * 2                    // 11
@@ -30,6 +37,8 @@ Examples:
 2 * (10,20,30)               // (20,40,60)
 [1,2] + [3,4]                // [1,2,3,4]
 [1+1, 2*3, 10/2]             // [2,6,5]
+x == 5                       // true/false
+! (x > 3)                    // logical not
 ```
 
 ### Variables and Assignment
@@ -40,6 +49,29 @@ x := 5
 y := x + 3                   // 8
 z := (1,2,3) * 2            // (2,4,6)
 arr := [1, 2, 3, 4, 5]
+```
+
+### Functions
+Define functions with `fn name(params) { body }`
+
+```
+fn add(a, b) {
+    return a + b
+}
+result := add(3, 4)          // 7
+```
+
+### Control Structures
+```
+if (x > 5) {
+    y := 10
+} else {
+    y := 0
+}
+
+while (i < 10) {
+    i := i + 1
+}
 ```
 
 ### REPL Commands
@@ -84,9 +116,6 @@ Sweep > .exit
 
 ## Future Implementations
 
-- **Functions**: Function definition and calling
-- **Control Structures**: Conditionals (if/else) and loops (for/while)
-- **More Operators**: Logical, comparison, etc.
 - **Error Handling**: Better error messages and recovery
 - **Optimizations**: Generational GC, incremental collection
 

@@ -20,6 +20,23 @@ typedef enum {
     TOKEN_RBRACKET, // ]
     TOKEN_COMMA,    // ,
     TOKEN_SEMI,     // ;
+    TOKEN_LBRACE,   // {
+    TOKEN_RBRACE,   // }
+    TOKEN_FN,       // fn
+    TOKEN_RETURN,   // return
+    TOKEN_IF,       // if
+    TOKEN_ELSE,     // else
+    TOKEN_WHILE,    // while
+    TOKEN_EQ,       // ==
+    TOKEN_NEQ,      // !=
+    TOKEN_LT,       // <
+    TOKEN_GT,       // >
+    TOKEN_LE,       // <=
+    TOKEN_GE,       // >=
+    TOKEN_AND,      // &&
+    TOKEN_OR,       // ||
+    TOKEN_NOT,      // !
+    TOKEN_CALL,     // function call
     TOKEN_ERROR     // lexical error
 } token_kind_t;
 

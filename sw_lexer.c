@@ -12,6 +12,19 @@ static int is_alpha(char c) {
 static int is_alnum(char c) {
     return is_alpha(c) || is_digit(c);
 }
+static token_kind_t check_keyword(const char *start, int length) {
+    if (length == 2 && strncmp(start, "fn", 2) == 0)
+        return TOKEN_FN;
+    if (length == 2 && strncmp(start, "if", 2) == 0)
+        return TOKEN_IF;
+    if (length == 4 && strncmp(start, "else", 4) == 0)
+        return TOKEN_ELSE;
+    if (length == 5 && strncmp(start, "while", 5) == 0)
+        return TOKEN_WHILE;
+    if (length == 6 && strncmp(start, "return", 6) == 0)
+        return TOKEN_RETURN;
+    return TOKEN_ID;
+}
 
 static token_t make_token(token_kind_t kind, const char *start, int length,
                           int line) {
@@ -81,6 +94,12 @@ token_t *sw_lex(const char *source) {
         case ';':
             tokens[count++] = make_token(TOKEN_SEMI, &source[start], 1, line);
             break;
+        case '{':
+            tokens[count++] = make_token(TOKEN_LBRACE, &source[start], 1, line);
+            break;
+        case '}':
+            tokens[count++] = make_token(TOKEN_RBRACE, &source[start], 1, line);
+            break;
         case '"':
             start = current;
             while (source[current] != '"' && source[current] != '\0') {
@@ -113,17 +132,44 @@ token_t *sw_lex(const char *source) {
                 while (is_alnum(source[current])) {
                     current++;
                 }
+                int length = current - start;
+                token_kind_t kind = check_keyword(&source[start], length);
                 tokens[count++] =
-                    make_token(TOKEN_ID, &source[start], current - start, line);
+                    make_token(kind, &source[start], length, line);
             } else if (c == ':' && source[current] == '=') {
                 current++;
                 tokens[count++] =
                     make_token(TOKEN_ASSIGN, &source[start], 2, line);
-            } else {
+            } else if (c == '=' && source[current] == '=') {
+                current++;
+                tokens[count++] = make_token(TOKEN_EQ, &source[start], 2, line);
+            } else if (c == '!' && source[current] == '=') {
+                current++;
                 tokens[count++] =
-                    make_token(TOKEN_ERROR, &source[start], 1, line);
+                    make_token(TOKEN_NEQ, &source[start], 2, line);
+            } else if (c == '<' && source[current] == '=') {
+                current++;
+                tokens[count++] = make_token(TOKEN_LE, &source[start], 2, line);
+            } else if (c == '>' && source[current] == '=') {
+                current++;
+                tokens[count++] = make_token(TOKEN_GE, &source[start], 2, line);
+            } else if (c == '&' && source[current] == '&') {
+                current++;
+                tokens[count++] =
+                    make_token(TOKEN_AND, &source[start], 2, line);
+            } else if (c == '|' && source[current] == '|') {
+                current++;
+                tokens[count++] = make_token(TOKEN_OR, &source[start], 2, line);
+            } else if (c == '<') {
+                tokens[count++] = make_token(TOKEN_LT, &source[start], 1, line);
+            } else if (c == '>') {
+                tokens[count++] = make_token(TOKEN_GT, &source[start], 1, line);
+            } else if (c == '!') {
+                tokens[count++] =
+                    make_token(TOKEN_NOT, &source[start], 1, line);
+            } else {
+                break;
             }
-            break;
         }
     }
 
@@ -132,7 +178,6 @@ token_t *sw_lex(const char *source) {
     tokens[count] = make_token(TOKEN_EOF, "", 0, line);
     return tokens;
 }
-
 void free_tokens(token_t *tokens) {
     for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
         free(tokens[i].lexeme);

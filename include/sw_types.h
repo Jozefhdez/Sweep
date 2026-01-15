@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef enum { SW_INT, SW_FLOAT, SW_STRING, SW_VEC3, SW_ARRAY } sw_kind_t;
+typedef enum { SW_INT, SW_FLOAT, SW_STRING, SW_VEC3, SW_ARRAY, SW_FUNCTION } sw_kind_t;
 
 typedef struct sw_obj sw_obj_t;
 

@@ -106,6 +106,118 @@ sw_obj_t *sw_eval(AST *ast) {
             return NULL;
         return sw_div(left, right);
     }
+    case TOKEN_EQ: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_EQ.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_EQ.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int == right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_NEQ: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_NEQ.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_NEQ.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int != right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_LT: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_LT.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_LT.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int < right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_GT: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_GT.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_GT.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int > right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_LE: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_LE.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_LE.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int <= right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_GE: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_GE.left);
+        sw_obj_t *right = sw_eval(ast->TOKEN_GE.right);
+        if (!left || !right) return NULL;
+        if (left->kind == SW_INT && right->kind == SW_INT) {
+            return sw_int(left->data.v_int >= right->data.v_int);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_AND: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_AND.left);
+        if (!left) return NULL;
+        if (left->kind == SW_INT && left->data.v_int == 0) return sw_int(0);
+        sw_obj_t *right = sw_eval(ast->TOKEN_AND.right);
+        if (!right) return NULL;
+        if (right->kind == SW_INT && right->data.v_int == 0) return sw_int(0);
+        return sw_int(1);
+    }
+    case TOKEN_OR: {
+        sw_obj_t *left = sw_eval(ast->TOKEN_OR.left);
+        if (!left) return NULL;
+        if (left->kind == SW_INT && left->data.v_int != 0) return sw_int(1);
+        sw_obj_t *right = sw_eval(ast->TOKEN_OR.right);
+        if (!right) return NULL;
+        if (right->kind == SW_INT && right->data.v_int != 0) return sw_int(1);
+        return sw_int(0);
+    }
+    case TOKEN_NOT: {
+        sw_obj_t *expr = sw_eval(ast->TOKEN_NOT.expr);
+        if (!expr) return NULL;
+        if (expr->kind == SW_INT && expr->data.v_int == 0) return sw_int(1);
+        return sw_int(0);
+    }
+    case TOKEN_FN: {
+        // store function
+        set_var(ast->TOKEN_FN.name, (sw_obj_t *)ast); // placeholder, store AST
+        return sw_int(1); // success
+    }
+    case TOKEN_CALL: {
+        // call function
+        sw_obj_t *func = sw_eval(ast->TOKEN_CALL.func);
+        if (!func) return NULL;
+        // evaluate args
+        // call func with args
+        return sw_int(0); // placeholder
+    }
+    case TOKEN_IF: {
+        sw_obj_t *cond = sw_eval(ast->TOKEN_IF.condition);
+        if (!cond) return NULL;
+        if (cond) { // if true
+            return sw_eval(ast->TOKEN_IF.then_branch);
+        } else if (ast->TOKEN_IF.else_branch) {
+            return sw_eval(ast->TOKEN_IF.else_branch);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_WHILE: {
+        while (1) {
+            sw_obj_t *cond = sw_eval(ast->TOKEN_WHILE.condition);
+            if (!cond || !cond) break;
+            sw_eval(ast->TOKEN_WHILE.body);
+        }
+        return sw_int(0);
+    }
+    case TOKEN_RETURN: {
+        return sw_eval(ast->TOKEN_RETURN.expr);
+    }
     default:
         return NULL;
     }

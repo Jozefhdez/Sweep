@@ -52,6 +52,64 @@ struct AST {
             AST *left;
             AST *right;
         } TOKEN_DIV;
+        struct TOKEN_FN {
+            char *name;
+            AST **params;
+            int param_count;
+            AST *body;
+        } TOKEN_FN;
+        struct TOKEN_CALL {
+            AST *func;
+            AST **args;
+            int arg_count;
+        } TOKEN_CALL;
+        struct TOKEN_RETURN {
+            AST *expr;
+        } TOKEN_RETURN;
+        struct TOKEN_IF {
+            AST *condition;
+            AST *then_branch;
+            AST *else_branch;
+        } TOKEN_IF;
+        struct TOKEN_WHILE {
+            AST *condition;
+            AST *body;
+        } TOKEN_WHILE;
+        struct TOKEN_EQ {
+            AST *left;
+            AST *right;
+        } TOKEN_EQ;
+        struct TOKEN_NEQ {
+            AST *left;
+            AST *right;
+        } TOKEN_NEQ;
+        struct TOKEN_LT {
+            AST *left;
+            AST *right;
+        } TOKEN_LT;
+        struct TOKEN_GT {
+            AST *left;
+            AST *right;
+        } TOKEN_GT;
+        struct TOKEN_LE {
+            AST *left;
+            AST *right;
+        } TOKEN_LE;
+        struct TOKEN_GE {
+            AST *left;
+            AST *right;
+        } TOKEN_GE;
+        struct TOKEN_AND {
+            AST *left;
+            AST *right;
+        } TOKEN_AND;
+        struct TOKEN_OR {
+            AST *left;
+            AST *right;
+        } TOKEN_OR;
+        struct TOKEN_NOT {
+            AST *expr;
+        } TOKEN_NOT;
         struct TOKEN_LPAREN {
             AST *left;
             AST *right;
