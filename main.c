@@ -8,12 +8,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "sw_gc.h"
 
 void print_prompt() {
     printf("Sweep > ");
 }
 
 int main() {
+    vm_t *vm = vm_new();
+    vm_set_current(vm);
+
     InputBuffer *input_buffer = new_input_buffer();
 
     while (true) {
@@ -25,6 +29,8 @@ int main() {
             if (type == COMMAND_EXIT) {
                 close_input_buffer(input_buffer);
                 free_symbols();
+                vm_collect_garbage(vm);
+                vm_free(vm);
                 return 0;
             } else {
                 printf("Unrecognized command '%s'\n", input_buffer->buffer);

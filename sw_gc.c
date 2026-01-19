@@ -10,6 +10,16 @@ vm_t *vm_new(void) {
     return vm;
 }
 
+static vm_t *g_vm = NULL;
+
+void vm_set_current(vm_t *vm) {
+    g_vm = vm;
+}
+
+vm_t *vm_get_current(void) {
+    return g_vm;
+}
+
 void vm_free(vm_t *vm) {
     for (size_t i = 0; i < vm->objects->count; i++) {
         sw_object_free(vm->objects->data[i]);

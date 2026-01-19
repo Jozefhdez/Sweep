@@ -1,4 +1,5 @@
 #include "sw_obj.h"
+#include "sw_gc.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +62,10 @@ sw_obj_t *sw_int(int value) {
     obj->kind = SW_INT;
     obj->data.v_int = value;
 
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
+
     return obj;
 }
 
@@ -72,6 +77,10 @@ sw_obj_t *sw_float(float value) {
     }
     obj->kind = SW_FLOAT;
     obj->data.v_float = value;
+
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
 
     return obj;
 }
@@ -94,6 +103,10 @@ sw_obj_t *sw_string(char *value) {
     obj->kind = SW_STRING;
     strcpy(obj->data.v_string, value);
 
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
+
     return obj;
 }
 
@@ -111,6 +124,10 @@ sw_obj_t *sw_vec3(sw_obj_t *x, sw_obj_t *y, sw_obj_t *z) {
     obj->kind = SW_VEC3;
     sw_vec3_t vec = (sw_vec3_t){.x = x, .y = y, .z = z};
     obj->data.v_vec3 = vec;
+
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
 
     return obj;
 }
@@ -131,6 +148,10 @@ sw_obj_t *sw_array(size_t size) {
     sw_array_t arr = (sw_array_t){.size = size, .elements = elements};
     obj->data.v_array = arr;
 
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
+
     return obj;
 }
 
@@ -145,6 +166,10 @@ sw_obj_t *sw_function(void *body, char **params, int param_count) {
     obj->data.v_function.body = body;
     obj->data.v_function.params = params;
     obj->data.v_function.param_count = param_count;
+
+    vm_t *vm = vm_get_current();
+    if (vm)
+        vm_track_object(vm, obj);
 
     return obj;
 }

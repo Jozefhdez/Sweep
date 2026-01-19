@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "include/sw_parser.h"
 #include "include/sw_lexer.h"
 #include <stdio.h>
