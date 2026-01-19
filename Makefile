@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror -g -Iinclude -fsanitize=address
+CFLAGS = -std=c99 -Wall -Wextra -Werror -g -Iinclude -fsanitize=address -D_POSIX_C_SOURCE=200809L
 TARGET = build/main
 SRCS = main.c sw_obj.c sw_array.c sw_ops.c sw_lexer.c sw_parser.c sw_interpreter.c sw_input.c sw_gc.c sw_stack.c
 OBJS = $(addprefix build/, $(SRCS:.c=.o))

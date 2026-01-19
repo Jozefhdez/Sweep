@@ -76,12 +76,11 @@ while (i < 10) {
 
 ### REPL Commands
 - `.exit` - Exit the REPL and free memory
-- `clear` - Clear the terminal screen
 
 ## Architecture
 
 ### Memory Management
-Sweep uses a **mark-and-sweep garbage collector** inspired by the algorithm first described by John McCarthy in 1960. The GC operates in two phases:
+Sweep uses a **mark-and-sweep garbage collector**. The GC operates in two phases:
 
 1. **Mark Phase**: Traverses the object graph from roots (symbol table), marking all reachable objects
 2. **Sweep Phase**: Iterates over all tracked objects, freeing unmarked objects (garbage)

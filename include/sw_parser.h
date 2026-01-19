@@ -123,8 +123,7 @@ struct AST {
             AST *right;
         } TOKEN_SEMI;
     };
-
-} data;
+};
 
 AST *ast_new(AST ast);
 void ast_print(AST *ptr);
