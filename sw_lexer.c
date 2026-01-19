@@ -179,8 +179,11 @@ token_t *sw_lex(const char *source) {
     return tokens;
 }
 void free_tokens(token_t *tokens) {
-    for (int i = 0; tokens[i].kind != TOKEN_EOF; i++) {
+    for (int i = 0;; i++) {
+        token_kind_t kind = tokens[i].kind;
         free(tokens[i].lexeme);
+        if (kind == TOKEN_EOF)
+            break;
     }
     free(tokens);
 }

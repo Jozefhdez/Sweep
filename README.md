@@ -116,7 +116,6 @@ Sweep > .exit
 ## Future Implementations
 
 - **Error Handling**: Better error messages and recovery
-- **Optimizations**: Generational GC, incremental collection
 
 ## Installation
 
@@ -127,11 +126,6 @@ Sweep > .exit
 ### Build
 ```bash
 make
-```
-
-### Run Tests
-```bash
-make test
 ```
 
 ## Usage
