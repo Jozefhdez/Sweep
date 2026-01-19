@@ -116,6 +116,7 @@ Sweep > .exit
 ## Future Implementations
 
 - **Error Handling**: Better error messages and recovery
+- **Fix memory leaks**: Fix small memory leaks caused by parser :(
 
 ## Installation
 
