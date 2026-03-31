@@ -6,6 +6,7 @@
 
 typedef struct VirtualMachine {
     obj_stack_t *objects;
+    int alloc_count;
 } vm_t;
 
 vm_t *vm_new(void);

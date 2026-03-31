@@ -3,6 +3,8 @@
 #include "include/sw_obj.h"
 #include <stdlib.h>
 
+#define GC_THRESHOLD 256
+
 vm_t *vm_new(void) {
     vm_t *vm = malloc(sizeof(vm_t));
     vm->objects = stack_new(8);
@@ -32,6 +34,11 @@ void vm_free(vm_t *vm) {
 
 void vm_track_object(vm_t *vm, sw_obj_t *obj) {
     stack_push(vm->objects, obj);
+    vm->alloc_count++;
+    if (vm->alloc_count >= GC_THRESHOLD) {
+        vm->alloc_count = 0;
+        vm_collect_garbage(vm);
+    }
 }
 
 void mark(vm_t *vm) {
