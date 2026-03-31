@@ -8,36 +8,48 @@
 
 #define MAX_VARS 100
 
-typedef struct {
-    char *name;
-    sw_obj_t *value;
-} symbol_t;
+typedef struct scope_t {
+    char *names[MAX_VARS];
+    sw_obj_t *values[MAX_VARS];
+    int count;
+    struct scope_t *parent;
+} scope_t;
 
-static symbol_t symbols[MAX_VARS];
-static int symbol_count = 0;
+static scope_t *scope;
 static bool g_returning = false;
 
+void init_scope(void) {
+    static scope_t global_scope = {0};
+    scope = &global_scope;
+}
+
 static sw_obj_t *get_var(const char *name) {
-    for (int i = 0; i < symbol_count; i++) {
-        if (strcmp(symbols[i].name, name) == 0) {
-            return symbols[i].value;
+    scope_t *s = scope; // curr scope
+
+    while (s != NULL) {
+        for (int i = 0; i < s->count; i++) {
+            if (strcmp(s->names[i], name) == 0)
+                return s->values[i];
         }
+        s = s->parent; // if not found here move to parent scope
     }
     return NULL;
 }
 
 static void set_var(const char *name, sw_obj_t *value) {
-    for (int i = 0; i < symbol_count; i++) {
-        if (strcmp(symbols[i].name, name) == 0) {
-            symbols[i].value = value;
+
+    for (int i = 0; i < scope->count; i++) {
+        if (strcmp(scope->names[i], name) == 0) {
+            scope->values[i] = value;
             return;
         }
     }
-    // add new
-    if (symbol_count < MAX_VARS) {
-        symbols[symbol_count].name = strdup(name);
-        symbols[symbol_count].value = value;
-        symbol_count++;
+
+    // add new variable to curr scope
+    if (scope->count < MAX_VARS) {
+        scope->names[scope->count] = strdup(name);
+        scope->values[scope->count] = value;
+        scope->count++;
     }
 }
 
@@ -218,7 +230,7 @@ sw_obj_t *sw_eval(AST *ast) {
         if (!func_obj || func_obj->kind != SW_FUNCTION)
             return sw_int(0);
 
-        // evaluate args
+        // evaluate args in the current scope (before pushing new one)
         sw_obj_t **args =
             malloc(sizeof(sw_obj_t *) * ast->TOKEN_CALL.arg_count);
         for (int i = 0; i < ast->TOKEN_CALL.arg_count; i++) {
@@ -226,7 +238,13 @@ sw_obj_t *sw_eval(AST *ast) {
             if (!args[i])
                 return sw_int(0);
         }
-        // set params
+
+        // push a new scope
+        scope_t new_scope = {0};
+        new_scope.parent = scope;
+        scope = &new_scope;
+
+        // bind params int othe new scope
         for (int i = 0; i < func_obj->data.v_function.param_count; i++) {
             set_var(func_obj->data.v_function.params[i], args[i]);
         }
@@ -235,7 +253,9 @@ sw_obj_t *sw_eval(AST *ast) {
         sw_obj_t *result = sw_eval((AST *)func_obj->data.v_function.body);
         g_returning = false;
 
-        // clean up args? for now
+        // pop the scope
+        scope = new_scope.parent;
+
         free(args);
         return result ? result : sw_int(0);
     }
@@ -278,20 +298,20 @@ sw_obj_t *sw_eval(AST *ast) {
 }
 
 void free_symbols() {
-    for (int i = 0; i < symbol_count; i++) {
-        free(symbols[i].name);
+    for (int i = 0; i < scope->count; i++) {
+        free(scope->names[i]);
         // note: not freeing values (sw_obj_t*) as no garbage collector yet
     }
-    symbol_count = 0;
+    scope->count = 0;
 }
 
 void get_symbol_table(sw_obj_t ***objects, int *count) {
     static sw_obj_t *symbol_objects[MAX_VARS];
 
-    for (int i = 0; i < symbol_count; i++) {
-        symbol_objects[i] = symbols[i].value;
+    for (int i = 0; i < scope->count; i++) {
+        symbol_objects[i] = scope->values[i];
     }
 
     *objects = symbol_objects;
-    *count = symbol_count;
+    *count = scope->count;
 }

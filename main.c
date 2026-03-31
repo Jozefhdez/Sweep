@@ -1,4 +1,5 @@
 #include "sw_array.h"
+#include "sw_gc.h"
 #include "sw_input.h"
 #include "sw_interpreter.h"
 #include "sw_lexer.h"
@@ -8,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sw_gc.h"
 
 void print_prompt() {
     printf("Sweep > ");
@@ -17,6 +17,7 @@ void print_prompt() {
 int main() {
     vm_t *vm = vm_new();
     vm_set_current(vm);
+    init_scope();
 
     InputBuffer *input_buffer = new_input_buffer();
 
