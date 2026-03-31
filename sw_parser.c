@@ -196,7 +196,23 @@ static AST *parse_statement() {
             return NULL;
         if (!match(TOKEN_LBRACE))
             return NULL;
-        AST *body = parse_statement(); // for now, simple body
+
+        AST *body = NULL;
+        while (tokens[current].kind != TOKEN_RBRACE &&
+               tokens[current].kind != TOKEN_EOF) {
+            AST *stmt = parse_statement();
+            if (stmt) {
+                if (body == NULL) {
+                    body = stmt; // first statement nothing to chain yet
+                } else {
+                    body = ast_new(
+                        (AST){TOKEN_SEMI, {.TOKEN_SEMI = {body, stmt}}});
+                }
+            } else {
+                break; // parse error
+            }
+        }
+
         if (!match(TOKEN_RBRACE))
             return NULL;
         return ast_new(

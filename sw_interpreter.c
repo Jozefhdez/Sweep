@@ -15,6 +15,7 @@ typedef struct {
 
 static symbol_t symbols[MAX_VARS];
 static int symbol_count = 0;
+static bool g_returning = false;
 
 static sw_obj_t *get_var(const char *name) {
     for (int i = 0; i < symbol_count; i++) {
@@ -216,6 +217,7 @@ sw_obj_t *sw_eval(AST *ast) {
         sw_obj_t *func_obj = sw_eval(ast->TOKEN_CALL.func);
         if (!func_obj || func_obj->kind != SW_FUNCTION)
             return sw_int(0);
+
         // evaluate args
         sw_obj_t **args =
             malloc(sizeof(sw_obj_t *) * ast->TOKEN_CALL.arg_count);
@@ -228,9 +230,12 @@ sw_obj_t *sw_eval(AST *ast) {
         for (int i = 0; i < func_obj->data.v_function.param_count; i++) {
             set_var(func_obj->data.v_function.params[i], args[i]);
         }
+
         // evaluate body
         sw_obj_t *result = sw_eval((AST *)func_obj->data.v_function.body);
-        // clean up args? for now, leave
+        g_returning = false;
+
+        // clean up args? for now
         free(args);
         return result ? result : sw_int(0);
     }
@@ -257,10 +262,14 @@ sw_obj_t *sw_eval(AST *ast) {
         return sw_int(0);
     }
     case TOKEN_RETURN: {
-        return sw_eval(ast->TOKEN_RETURN.expr);
+        sw_obj_t *val = sw_eval(ast->TOKEN_RETURN.expr);
+        g_returning = true;
+        return val;
     }
     case TOKEN_SEMI: {
-        sw_eval(ast->TOKEN_SEMI.left);
+        sw_obj_t *result = sw_eval(ast->TOKEN_SEMI.left);
+        if (g_returning)
+            return result;
         return sw_eval(ast->TOKEN_SEMI.right);
     }
     default:
