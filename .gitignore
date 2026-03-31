@@ -31,3 +31,4 @@ tests/test_parser
 tests/*.dSYM/
 
 CLAUDE.md
+massif.out.*
