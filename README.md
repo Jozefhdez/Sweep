@@ -1,139 +1,144 @@
-# Sweep Programming Language
+# Sweep
 
-Sweep is a dynamic programming language with an interactive REPL. It features an object system with dynamic typing, supporting integers, floats, strings, 3D vectors, and arrays. It includes arithmetic operations with automatic type coercion, variables, expression evaluation, and a **mark-and-sweep garbage collector**.
+A dynamically typed language with an interactive REPL, written in C.
 
-## Features
+## Build & Run
 
-- **Dynamic Type System**: Supports INT, FLOAT, STRING, VEC3, and ARRAY types
-- **Tree-Walking Interpreter**: Direct AST evaluation without bytecode compilation
-- **Mark-and-Sweep Garbage Collection**: Automatic memory management with object graph tracing
-- **Interactive REPL**: Real-time expression evaluation with persistent variables
-- **Functions**: Function definition and calling
-- **Control Structures**: Conditionals (if/else) and loops (while)
-- **Operators**: Arithmetic, comparison (== != < > <= >=), logical (&& || !)
-
-## Syntax
-
-### Literals
-- Integers: `42`
-- Floats: `3.14`
-- Strings: `"Hello"`
-- Vectors: `(1, 2, 3)`
-- Arrays: `[1, 2, 3]`
-
-### Operations
-Arithmetic operators with precedence: `*`, `/` (highest), `+`, `-` (lowest). Automatic type coercion for compatible types. Supports scalar-vector and scalar-array operations.
-
-Comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`
-
-Logical operators: `&&`, `||`, `!`
-
-Examples:
-```
-5 + 3 * 2                    // 11
-3.5 + 2                      // 5.5
-"Hello " + "World"           // "Hello World"
-(1,2,3) + (4,5,6)            // (5,7,9)
-2 * (10,20,30)               // (20,40,60)
-[1,2] + [3,4]                // [1,2,3,4]
-[1+1, 2*3, 10/2]             // [2,6,5]
-x == 5                       // true/false
-! (x > 3)                    // logical not
+```bash
+make
+./build/main
 ```
 
-### Variables and Assignment
-Use `:=` for assignment. Variables persist across statements in the REPL session.
+## Language Tour
+
+### Types
+
+```
+42              // integer
+3.14            // float
+"hello"         // string
+(1, 2, 3)       // vec3
+[1, 2, 3]       // array
+```
+
+### Arithmetic
+
+Operator precedence: `*` `/` bind tighter than `+` `-`. Mixed types coerce automatically.
+
+```
+5 + 3 * 2           // 11
+3.5 + 2             // 5.5
+"hello " + "world"  // "hello world"
+(1,2,3) + (4,5,6)  // (5, 7, 9)
+2 * (1, 2, 3)       // (2, 4, 6)
+[1,2] + [3,4]       // [1, 2, 3, 4]
+```
+
+### Variables
 
 ```
 x := 5
-y := x + 3                   // 8
-z := (1,2,3) * 2            // (2,4,6)
-arr := [1, 2, 3, 4, 5]
+y := x + 3          // 8
+v := (1,2,3) * 2    // (2, 4, 6)
+```
+
+### Comparisons & Logic
+
+```
+x := 10
+x > 5               // 1 (true)
+x == 10             // 1
+x != 3              // 1
+x > 3 && x < 20     // 1
+x < 0 || x == 10    // 1
+! (x > 3)           // 0 (false)
+```
+
+### Control Flow
+
+```
+x := 8
+
+if (x > 5) {
+    result := "big"
+} else {
+    result := "small"
+}
+
+i := 0
+while (i < 5) {
+    i := i + 1
+}
 ```
 
 ### Functions
-Define functions with `fn name(params) { body }`
+
+Functions have lexical scope — locals don't leak into the caller.
 
 ```
 fn add(a, b) {
     return a + b
 }
-result := add(3, 4)          // 7
+
+add(3, 4)       // 7
 ```
 
-### Control Structures
+Multi-statement bodies and early return work as expected:
+
 ```
-if (x > 5) {
-    y := 10
-} else {
-    y := 0
+fn clamp(x) {
+    if (x > 100) { return 100 }
+    if (x < 0)   { return 0 }
+    return x
 }
 
-while (i < 10) {
-    i := i + 1
-}
+clamp(42)       // 42
+clamp(999)      // 100
+clamp(-5)       // 0
 ```
 
-### REPL Commands
-- `.exit` - Exit the REPL and free memory
+Recursion:
 
-## Architecture
+```
+fn factorial(n) {
+    if (n == 0) { return 1 }
+    return n * factorial(n - 1)
+}
 
-### Memory Management
-Sweep uses a **mark-and-sweep garbage collector**. The GC operates in two phases:
+factorial(10)   // 3628800
+```
 
-1. **Mark Phase**: Traverses the object graph from roots (symbol table), marking all reachable objects
-2. **Sweep Phase**: Iterates over all tracked objects, freeing unmarked objects (garbage)
+Scope isolation — `n` in the caller is untouched by the function's parameter:
 
-The GC tracks all allocated objects in a VM structure and uses a gray objects stack for depth-first traversal of container objects (VEC3, ARRAY).
+```
+n := 7
 
-### Type System
-All objects are represented by `sw_obj_t` with a discriminated union:
-- Non-container types: INT, FLOAT, STRING
-- Container types: VEC3 (contains 3 objects), ARRAY (contains N objects)
+fn double(n) {
+    return n * 2
+}
 
-Each object has a `marked` boolean flag used during garbage collection cycles.
+double(3)       // 6
+n               // 7
+```
 
-## Examples
+### REPL
 
-Interactive REPL session:
+Variables persist across inputs. Use `.exit` to quit.
+
 ```
 Sweep > x := 10
 10
 
-Sweep > y := x * 2
-20
+Sweep > x * 3
+30
 
-Sweep > (1,2,3) + (4,5,6)
-(5, 7, 9)
-
-Sweep > [1, 2, 3] + [4, 5]
-[1, 2, 3, 4, 5]
+Sweep > fn square(n) { return n * n }
+Sweep > square(x)
+100
 
 Sweep > .exit
 ```
 
-## Future Implementations
+## How It Works
 
-- **Error Handling**: Better error messages and recovery
-- **Fix memory leaks**: Fix small memory leaks caused by parser :(
-
-## Installation
-
-### Prerequisites
-- GCC with C99 support
-- Criterion testing framework (optional, for tests)
-
-### Build
-```bash
-make
-```
-
-## Usage
-
-```bash
-./build/main
-```
-
-Launches the interactive REPL where you can enter expressions and see results immediately.
-
+Sweep is a tree-walking interpreter: source text is lexed into tokens, parsed into an AST, and evaluated directly. A mark-and-sweep garbage collector runs every 256 allocations, tracing live objects from the symbol table and freeing everything unreachable. Functions get their own scope frame pushed onto a linked chain, so locals never bleed across call boundaries.
