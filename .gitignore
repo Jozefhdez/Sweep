@@ -15,6 +15,8 @@ main
 Thumbs.db
 
 .vscode/
+.claude/
+sweep-course/
 .idea/
 *.sublime-project
 *.sublime-workspace
